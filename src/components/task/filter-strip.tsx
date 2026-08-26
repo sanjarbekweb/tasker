@@ -9,6 +9,8 @@ import {
 import { TaskFilterType } from "../../stores/task-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 
+import { useTheme } from "../../hooks/use-theme";
+
 export interface FilterStripProps {
   activeFilter: TaskFilterType;
   onSelectFilter: (filter: TaskFilterType) => void;
@@ -28,8 +30,10 @@ export const FilterStrip = memo(function FilterStrip({
   activeFilter,
   onSelectFilter,
 }: FilterStripProps) {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -42,7 +46,10 @@ export const FilterStrip = memo(function FilterStrip({
               key={f.id}
               style={[
                 styles.filterPill,
-                isSelected && styles.filterPillSelected,
+                {
+                  backgroundColor: isSelected ? colors.textPrimary : colors.bgSurfaceElevated,
+                  borderColor: isSelected ? colors.textPrimary : colors.borderDefault,
+                },
               ]}
               onPress={() => onSelectFilter(f.id)}
               activeOpacity={0.7}
@@ -50,7 +57,7 @@ export const FilterStrip = memo(function FilterStrip({
               <Text
                 style={[
                   styles.filterText,
-                  isSelected && styles.filterTextSelected,
+                  { color: isSelected ? colors.bgCanvas : colors.textMuted },
                 ]}
               >
                 {f.label}
@@ -66,7 +73,6 @@ export const FilterStrip = memo(function FilterStrip({
 const styles = StyleSheet.create({
   container: {
     paddingVertical: SPACING.xs,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
@@ -75,22 +81,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.full,
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     marginRight: SPACING.sm,
     borderWidth: 1,
-    borderColor: "transparent",
-  },
-  filterPillSelected: {
-    backgroundColor: THEME_COLORS.light.textPrimary,
-    borderColor: THEME_COLORS.light.textPrimary,
   },
   filterText: {
     ...TYPOGRAPHY.caption,
     fontSize: 12,
     fontWeight: "600",
-    color: THEME_COLORS.light.textMuted,
-  },
-  filterTextSelected: {
-    color: THEME_COLORS.dark.textPrimary,
   },
 });

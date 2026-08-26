@@ -1,7 +1,8 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Plus, Clock } from "lucide-react-native";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export interface TimeGapRowProps {
   startMinutes: number;
@@ -24,21 +25,23 @@ export const TimeGapRow = memo(function TimeGapRow({
   durationMinutes,
   onScheduleInGap,
 }: TimeGapRowProps) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.line} />
+      <View style={[styles.line, { backgroundColor: colors.borderDefault }]} />
       <TouchableOpacity
-        style={styles.gapPill}
+        style={[styles.gapPill, { backgroundColor: colors.bgSurfaceElevated }]}
         onPress={() => onScheduleInGap?.(startMinutes, endMinutes)}
         activeOpacity={0.7}
       >
-        <Clock size={12} color={THEME_COLORS.light.textMuted} />
-        <Text style={styles.gapText}>
+        <Clock size={12} color={colors.textMuted} />
+        <Text style={[styles.gapText, { color: colors.textMuted }]}>
           {durationMinutes} min free ({formatMinutes(startMinutes)} - {formatMinutes(endMinutes)})
         </Text>
-        {onScheduleInGap && <Plus size={12} color={THEME_COLORS.light.textPrimary} style={{ marginLeft: 4 }} />}
+        {onScheduleInGap && <Plus size={12} color={colors.textPrimary} style={{ marginLeft: 4 }} />}
       </TouchableOpacity>
-      <View style={styles.line} />
+      <View style={[styles.line, { backgroundColor: colors.borderDefault }]} />
     </View>
   );
 });
@@ -53,13 +56,11 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: THEME_COLORS.light.borderDefault,
     opacity: 0.6,
   },
   gapPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     paddingVertical: 3,
     paddingHorizontal: SPACING.md,
     borderRadius: BORDER_RADIUS.full,
@@ -68,7 +69,6 @@ const styles = StyleSheet.create({
   gapText: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textMuted,
     marginLeft: 4,
   },
 });

@@ -1,12 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
 import {
-  THEME_COLORS,
   TYPOGRAPHY,
   BORDER_RADIUS,
   SPACING,
-  getCourseAccentTint,
 } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export type PriorityLevel = "p1" | "p2" | "p3" | "p4";
 
@@ -17,17 +16,19 @@ export interface PriorityBadgeProps {
 }
 
 export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, size = "md", style }) => {
+  const { semantic, getCourseAccentTint } = useTheme();
+
   const getPriorityColor = () => {
     switch (priority) {
       case "p1":
-        return THEME_COLORS.semantic.priorityHigh;
+        return semantic.priorityHigh;
       case "p2":
-        return THEME_COLORS.semantic.priorityMedium;
+        return semantic.priorityMedium;
       case "p3":
-        return THEME_COLORS.semantic.priorityLow;
+        return semantic.priorityLow;
       case "p4":
       default:
-        return THEME_COLORS.semantic.priorityNone;
+        return semantic.priorityNone;
     }
   };
 
@@ -76,24 +77,27 @@ export interface CoursePillProps {
 
 export const CoursePill: React.FC<CoursePillProps> = ({
   courseCode,
-  courseColor = THEME_COLORS.semantic.eventClass,
+  courseColor,
   size = "md",
   style,
 }) => {
+  const { semantic, getCourseAccentTint } = useTheme();
+  const effectiveColor = courseColor ?? semantic.eventClass;
   const isSm = size === "sm";
+
   return (
     <View
       style={[
         styles.pillBase,
         {
-          backgroundColor: getCourseAccentTint(courseColor, 0.12),
-          borderColor: getCourseAccentTint(courseColor, 0.25),
+          backgroundColor: getCourseAccentTint(effectiveColor, 0.12),
+          borderColor: getCourseAccentTint(effectiveColor, 0.25),
         },
         isSm ? styles.pillSm : styles.pillMd,
         style,
       ]}
     >
-      <Text style={[styles.pillText, { color: courseColor }, isSm && styles.pillTextSm]}>
+      <Text style={[styles.pillText, { color: effectiveColor }, isSm && styles.pillTextSm]}>
         {courseCode}
       </Text>
     </View>
@@ -109,13 +113,14 @@ export interface TagProps {
 
 export const Tag: React.FC<TagProps> = ({
   label,
-  color = THEME_COLORS.light.textMuted,
+  color,
   style,
   textStyle,
 }) => {
+  const { colors } = useTheme();
   return (
-    <View style={[styles.tagBase, style]}>
-      <Text style={[styles.tagText, { color }, textStyle]}>{label}</Text>
+    <View style={[styles.tagBase, { backgroundColor: colors.bgSurfaceElevated }, style]}>
+      <Text style={[styles.tagText, { color: color ?? colors.textMuted }, textStyle]}>{label}</Text>
     </View>
   );
 };
@@ -145,7 +150,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   tagBase: {
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: SPACING.sm,
     paddingVertical: 2,

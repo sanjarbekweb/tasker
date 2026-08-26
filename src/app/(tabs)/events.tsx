@@ -17,6 +17,7 @@ import { DateSelector } from "../../components/task/date-selector";
 import { TimelineSchedule } from "../../components/event/timeline-schedule";
 import { EventModal } from "../../components/event/event-modal";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { EventRepository } from "../../db/repositories/event-repository";
 import { CourseRepository } from "../../db/repositories/course-repository";
 import { TaskRepository } from "../../db/repositories/task-repository";
@@ -31,6 +32,7 @@ export default function EventsScreen() {
   const selectedDate = useTaskStore((s) => s.selectedDate);
   const setSelectedDate = useTaskStore((s) => s.setSelectedDate);
   const addToast = useUIStore((s) => s.addToast);
+  const { colors } = useTheme();
 
   const [events, setEvents] = useState<Event[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -96,19 +98,19 @@ export default function EventsScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Events View Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>Schedule & Events</Text>
-            <Text style={styles.headerDate}>{selectedDate}</Text>
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Schedule & Events</Text>
+            <Text style={[styles.headerDate, { color: colors.textMuted }]}>{selectedDate}</Text>
           </View>
           <TouchableOpacity
-            style={styles.headerAddBtn}
+            style={[styles.headerAddBtn, { backgroundColor: colors.textPrimary }]}
             onPress={() => setIsModalOpen(true)}
             activeOpacity={0.8}
           >
-            <Plus size={20} color="#FFFFFF" />
+            <Plus size={20} color={colors.bgCanvas} />
           </TouchableOpacity>
         </View>
 
@@ -149,7 +151,6 @@ export default function EventsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   header: {
     flexDirection: "row",
@@ -162,18 +163,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...TYPOGRAPHY.display,
     fontSize: 26,
-    color: THEME_COLORS.light.textPrimary,
   },
   headerDate: {
     ...TYPOGRAPHY.caption,
     fontSize: 12,
-    color: THEME_COLORS.light.textMuted,
   },
   headerAddBtn: {
     width: 40,
     height: 40,
     borderRadius: BORDER_RADIUS.full,
-    backgroundColor: THEME_COLORS.light.textPrimary,
     alignItems: "center",
     justifyContent: "center",
   },

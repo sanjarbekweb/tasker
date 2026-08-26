@@ -1,7 +1,8 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { FocusMode } from "../../domain/focus";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { Haptics } from "../../utils/haptics";
 
 export interface ModeSelectorProps {
@@ -21,6 +22,8 @@ export const ModeSelector = memo(function ModeSelector({
   disabled = false,
   onSelectMode,
 }: ModeSelectorProps) {
+  const { colors } = useTheme();
+
   const handleSelect = (m: FocusMode) => {
     if (disabled) return;
     Haptics.selectionAsync();
@@ -28,7 +31,7 @@ export const ModeSelector = memo(function ModeSelector({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bgSurfaceElevated }]}>
       {MODES.map((m) => {
         const isSelected = m.id === mode;
         return (
@@ -36,7 +39,7 @@ export const ModeSelector = memo(function ModeSelector({
             key={m.id}
             style={[
               styles.modeBtn,
-              isSelected && styles.modeBtnSelected,
+              isSelected && [styles.modeBtnSelected, { backgroundColor: colors.bgSurfaceCard }],
               disabled && styles.modeBtnDisabled,
             ]}
             onPress={() => handleSelect(m.id)}
@@ -46,6 +49,7 @@ export const ModeSelector = memo(function ModeSelector({
             <Text
               style={[
                 styles.modeText,
+                { color: isSelected ? colors.textPrimary : colors.textMuted },
                 isSelected && styles.modeTextSelected,
               ]}
             >
@@ -61,7 +65,6 @@ export const ModeSelector = memo(function ModeSelector({
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     borderRadius: BORDER_RADIUS.xl,
     padding: 3,
     marginHorizontal: SPACING.xl,
@@ -74,7 +77,6 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
   },
   modeBtnSelected: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -87,9 +89,8 @@ const styles = StyleSheet.create({
   modeText: {
     ...TYPOGRAPHY.caption,
     fontWeight: "600",
-    color: THEME_COLORS.light.textMuted,
   },
   modeTextSelected: {
-    color: THEME_COLORS.light.textPrimary,
+    fontWeight: "700",
   },
 });

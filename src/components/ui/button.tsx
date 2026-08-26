@@ -9,7 +9,8 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import { Haptics } from "../../utils/haptics";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "outline";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -41,6 +42,8 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   enableHaptic = true,
 }) => {
+  const { colors, semantic } = useTheme();
+
   const handlePress = (e: GestureResponderEvent) => {
     if (disabled || loading) return;
     if (enableHaptic) {
@@ -64,18 +67,18 @@ export const Button: React.FC<ButtonProps> = ({
     // Variant
     switch (variant) {
       case "primary":
-        base.backgroundColor = THEME_COLORS.light.textPrimary;
+        base.backgroundColor = colors.textPrimary;
         break;
       case "secondary":
-        base.backgroundColor = THEME_COLORS.light.borderSubtle;
+        base.backgroundColor = colors.bgSurfaceElevated;
         break;
       case "outline":
         base.backgroundColor = "transparent";
         base.borderWidth = 1;
-        base.borderColor = THEME_COLORS.light.borderDefault;
+        base.borderColor = colors.borderDefault;
         break;
       case "destructive":
-        base.backgroundColor = THEME_COLORS.semantic.stateError;
+        base.backgroundColor = semantic.stateError;
         break;
       case "ghost":
         base.backgroundColor = "transparent";
@@ -103,12 +106,12 @@ export const Button: React.FC<ButtonProps> = ({
     switch (variant) {
       case "primary":
       case "destructive":
-        baseText.color = THEME_COLORS.dark.textPrimary;
+        baseText.color = colors.bgCanvas;
         break;
       case "secondary":
       case "outline":
       case "ghost":
-        baseText.color = THEME_COLORS.light.textPrimary;
+        baseText.color = colors.textPrimary;
         break;
     }
 
@@ -125,7 +128,7 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === "primary" || variant === "destructive" ? "#FFFFFF" : THEME_COLORS.light.textPrimary}
+          color={variant === "primary" || variant === "destructive" ? colors.bgCanvas : colors.textPrimary}
         />
       ) : (
         <>

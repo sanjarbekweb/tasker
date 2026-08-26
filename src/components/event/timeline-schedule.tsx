@@ -1,7 +1,8 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { DailySchedule, ScheduledItem, FreeGap } from "../../domain/scheduling";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { Clock, AlertTriangle } from "lucide-react-native";
 import { TimeGapRow } from "../task/time-gap-row";
 import { TouchableOpacity } from "react-native";
@@ -31,6 +32,7 @@ export const TimelineSchedule = memo(function TimelineSchedule({
   onScheduleInGap,
   onPressItem,
 }: TimelineScheduleProps) {
+  const { colors, semantic } = useTheme();
   const { items, collisions, freeGaps } = schedule;
 
   const collisionItemIds = new Set<string>();
@@ -42,9 +44,9 @@ export const TimelineSchedule = memo(function TimelineSchedule({
   return (
     <View style={styles.container}>
       {collisions.length > 0 && (
-        <View style={styles.collisionBanner}>
-          <AlertTriangle size={14} color={THEME_COLORS.semantic.stateError} />
-          <Text style={styles.collisionBannerText}>
+        <View style={[styles.collisionBanner, { backgroundColor: `${semantic.stateError}15`, borderColor: semantic.stateError }]}>
+          <AlertTriangle size={14} color={semantic.stateError} />
+          <Text style={[styles.collisionBannerText, { color: semantic.stateError }]}>
             {collisions.length} schedule conflict{collisions.length > 1 ? "s" : ""} detected
           </Text>
         </View>
@@ -52,9 +54,9 @@ export const TimelineSchedule = memo(function TimelineSchedule({
 
       {items.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Clock size={28} color={THEME_COLORS.light.textMuted} />
-          <Text style={styles.emptyTitle}>No scheduled events or tasks</Text>
-          <Text style={styles.emptySubtitle}>Your day is wide open.</Text>
+          <Clock size={28} color={colors.textMuted} />
+          <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No scheduled events or tasks</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Your day is wide open.</Text>
         </View>
       ) : (
         <View style={styles.timelineList}>
@@ -66,28 +68,34 @@ export const TimelineSchedule = memo(function TimelineSchedule({
             return (
               <View key={item.id} style={styles.itemWrapper}>
                 <View style={styles.timeColumn}>
-                  <Text style={styles.timeStart}>{formatTimestamp(item.startTime)}</Text>
-                  <Text style={styles.timeEnd}>{formatTimestamp(item.endTime)}</Text>
+                  <Text style={[styles.timeStart, { color: colors.textPrimary }]}>{formatTimestamp(item.startTime)}</Text>
+                  <Text style={[styles.timeEnd, { color: colors.textMuted }]}>{formatTimestamp(item.endTime)}</Text>
                 </View>
 
                 <TouchableOpacity
                   style={[
                     styles.itemCard,
-                    isEvent ? styles.eventCard : styles.taskCard,
-                    hasCollision && styles.itemCardCollision,
+                    {
+                      backgroundColor: colors.bgSurfaceCard,
+                      borderColor: colors.borderDefault,
+                    },
+                    isEvent
+                      ? [styles.eventCard, { borderLeftColor: semantic.eventClass }]
+                      : [styles.taskCard, { borderLeftColor: semantic.priorityLow }],
+                    hasCollision && [styles.itemCardCollision, { borderColor: semantic.stateError }],
                   ]}
                   onPress={() => onPressItem?.(item)}
                   activeOpacity={0.7}
                 >
                   <View style={styles.itemHeader}>
-                    <Text style={styles.itemTitle} numberOfLines={1}>
+                    <Text style={[styles.itemTitle, { color: colors.textPrimary }]} numberOfLines={1}>
                       {item.title}
                     </Text>
-                    <Text style={styles.itemTypeTag}>
+                    <Text style={[styles.itemTypeTag, { color: colors.textMuted }]}>
                       {item.type.toUpperCase()}
                     </Text>
                   </View>
-                  <Text style={styles.durationText}>
+                  <Text style={[styles.durationText, { color: colors.textMuted }]}>
                     {durationMins} mins
                   </Text>
                 </TouchableOpacity>
@@ -118,8 +126,6 @@ const styles = StyleSheet.create({
   collisionBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-    borderColor: THEME_COLORS.semantic.stateError,
     borderWidth: 1,
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.md,
@@ -129,7 +135,6 @@ const styles = StyleSheet.create({
   collisionBannerText: {
     ...TYPOGRAPHY.caption,
     fontWeight: "600",
-    color: THEME_COLORS.semantic.stateError,
     marginLeft: SPACING.sm,
   },
   emptyContainer: {
@@ -141,12 +146,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     ...TYPOGRAPHY.heading,
     fontSize: 16,
-    color: THEME_COLORS.light.textPrimary,
     marginTop: SPACING.sm,
   },
   emptySubtitle: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     marginTop: 2,
   },
   timelineList: {
@@ -164,32 +167,26 @@ const styles = StyleSheet.create({
   timeStart: {
     ...TYPOGRAPHY.caption,
     fontWeight: "700",
-    color: THEME_COLORS.light.textPrimary,
     fontSize: 11,
   },
   timeEnd: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     fontSize: 10,
   },
   itemCard: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS.xl,
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     padding: SPACING.md,
   },
   eventCard: {
     borderLeftWidth: 4,
-    borderLeftColor: THEME_COLORS.semantic.eventClass,
   },
   taskCard: {
     borderLeftWidth: 4,
-    borderLeftColor: THEME_COLORS.semantic.priorityLow,
   },
   itemCardCollision: {
-    borderColor: THEME_COLORS.semantic.stateError,
+    borderWidth: 1.5,
   },
   itemHeader: {
     flexDirection: "row",
@@ -200,7 +197,6 @@ const styles = StyleSheet.create({
   itemTitle: {
     ...TYPOGRAPHY.body,
     fontWeight: "600",
-    color: THEME_COLORS.light.textPrimary,
     flex: 1,
     marginRight: SPACING.sm,
   },
@@ -208,11 +204,9 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 9,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
   },
   durationText: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textMuted,
   },
 });

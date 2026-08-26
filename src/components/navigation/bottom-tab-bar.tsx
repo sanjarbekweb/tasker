@@ -2,7 +2,8 @@ import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AppTab, useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
-import { CheckSquare, Calendar, Target, User, Plus } from "lucide-react-native";
+import { useTheme } from "../../hooks/use-theme";
+import { CheckSquare, Calendar, Target, User } from "lucide-react-native";
 import { Haptics } from "../../utils/haptics";
 
 export interface BottomTabBarProps {
@@ -21,25 +22,24 @@ const TABS: { id: AppTab; label: string; icon: typeof CheckSquare }[] = [
 export const BottomTabBar = memo(function BottomTabBar({
   activeTab,
   onSelectTab,
-  onQuickAddPress,
 }: BottomTabBarProps) {
+  const { colors, semantic } = useTheme();
+
   const handleTabPress = (tab: AppTab) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSelectTab(tab);
   };
 
-  const handleFabPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onQuickAddPress?.();
-  };
-
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bgSurfaceCard, borderTopColor: colors.borderDefault }]}>
       <View style={styles.bar}>
         {TABS.map((tab) => {
           const isSelected = tab.id === activeTab;
           const IconComp = tab.icon;
           const isFocus = tab.id === "focus";
+
+          const activeColor = isFocus ? semantic.focusAccent : colors.textPrimary;
+          const inactiveColor = colors.textMuted;
 
           return (
             <TouchableOpacity
@@ -50,20 +50,14 @@ export const BottomTabBar = memo(function BottomTabBar({
             >
               <IconComp
                 size={20}
-                color={
-                  isSelected
-                    ? isFocus
-                      ? THEME_COLORS.semantic.focusAccent
-                      : THEME_COLORS.light.textPrimary
-                    : THEME_COLORS.light.textMuted
-                }
+                color={isSelected ? activeColor : inactiveColor}
                 strokeWidth={isSelected ? 2.5 : 2}
               />
               <Text
                 style={[
                   styles.tabLabel,
+                  { color: isSelected ? activeColor : inactiveColor },
                   isSelected && styles.tabLabelSelected,
-                  isSelected && isFocus && { color: THEME_COLORS.semantic.focusAccent },
                 ]}
               >
                 {tab.label}
@@ -78,9 +72,7 @@ export const BottomTabBar = memo(function BottomTabBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderTopWidth: 1,
-    borderTopColor: THEME_COLORS.light.borderDefault,
     paddingBottom: SPACING.md,
     paddingTop: SPACING.xs + 2,
   },
@@ -99,11 +91,9 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: "600",
-    color: THEME_COLORS.light.textMuted,
     marginTop: 2,
   },
   tabLabelSelected: {
-    color: THEME_COLORS.light.textPrimary,
     fontWeight: "700",
   },
 });

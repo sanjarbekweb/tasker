@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Modal } from "../ui/modal";
 import { Button } from "../ui/button";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
-import { Calendar, Sun, ArrowRight, Clock } from "lucide-react-native";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
+import { Calendar, Sun, ArrowRight } from "lucide-react-native";
 
 export interface RescheduleModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
   onClose,
   onReschedule,
 }) => {
+  const { colors } = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>("today");
 
   const today = new Date();
@@ -47,8 +49,8 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
   return (
     <Modal visible={visible} onClose={onClose}>
       <View style={styles.container}>
-        <Text style={styles.title}>Reschedule Task</Text>
-        <Text style={styles.subtitle}>Choose when you want to work on this task</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Reschedule Task</Text>
+        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Choose when you want to work on this task</Text>
 
         <View style={styles.optionsList}>
           {options.map((opt) => {
@@ -59,25 +61,29 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
                 key={opt.id}
                 style={[
                   styles.optionCard,
-                  isSelected && styles.optionCardSelected,
+                  {
+                    backgroundColor: isSelected ? colors.bgSurfaceElevated : colors.bgSurfaceCard,
+                    borderColor: isSelected ? colors.textPrimary : colors.borderDefault,
+                  },
                 ]}
                 onPress={() => setSelectedOption(opt.id)}
                 activeOpacity={0.7}
               >
                 <IconComp
                   size={18}
-                  color={isSelected ? THEME_COLORS.light.textPrimary : THEME_COLORS.light.textMuted}
+                  color={isSelected ? colors.textPrimary : colors.textMuted}
                 />
                 <View style={styles.optionTextContainer}>
                   <Text
                     style={[
                       styles.optionLabel,
-                      isSelected && styles.optionLabelSelected,
+                      { color: colors.textPrimary },
+                      isSelected && { fontWeight: "700" },
                     ]}
                   >
                     {opt.label}
                   </Text>
-                  <Text style={styles.optionDate}>{opt.date}</Text>
+                  <Text style={[styles.optionDate, { color: colors.textMuted }]}>{opt.date}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -109,12 +115,10 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.heading,
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: 2,
   },
   subtitle: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     marginBottom: SPACING.lg,
   },
   optionsList: {
@@ -123,16 +127,10 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
-  },
-  optionCardSelected: {
-    borderColor: THEME_COLORS.light.textPrimary,
-    backgroundColor: THEME_COLORS.light.borderSubtle,
   },
   optionTextContainer: {
     marginLeft: SPACING.md,
@@ -140,14 +138,9 @@ const styles = StyleSheet.create({
   optionLabel: {
     ...TYPOGRAPHY.body,
     fontWeight: "600",
-    color: THEME_COLORS.light.textPrimary,
-  },
-  optionLabelSelected: {
-    color: THEME_COLORS.light.textPrimary,
   },
   optionDate: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     fontSize: 11,
   },
   actionsRow: {

@@ -9,8 +9,11 @@ export interface ToastMessage {
   durationMs?: number;
 }
 
+export type ThemePreference = "light" | "dark" | "system";
+
 export interface UIState {
   activeTab: AppTab;
+  themePreference: ThemePreference;
   isQuickAddModalOpen: boolean;
   isRescheduleModalOpen: boolean;
   activeModalTaskId: string | null;
@@ -19,6 +22,7 @@ export interface UIState {
 
   // Actions
   setActiveTab: (tab: AppTab) => void;
+  setThemePreference: (pref: ThemePreference) => void;
   openQuickAddModal: () => void;
   closeQuickAddModal: () => void;
   openRescheduleModal: (taskId: string) => void;
@@ -32,6 +36,7 @@ export interface UIState {
 
 export const useUIStore = create<UIState>((set) => ({
   activeTab: "tasks",
+  themePreference: "system",
   isQuickAddModalOpen: false,
   isRescheduleModalOpen: false,
   activeModalTaskId: null,
@@ -39,6 +44,7 @@ export const useUIStore = create<UIState>((set) => ({
   toasts: [],
 
   setActiveTab: (tab: AppTab) => set({ activeTab: tab }),
+  setThemePreference: (pref: ThemePreference) => set({ themePreference: pref }),
 
   openQuickAddModal: () => set({ isQuickAddModalOpen: true }),
   closeQuickAddModal: () => set({ isQuickAddModalOpen: false }),

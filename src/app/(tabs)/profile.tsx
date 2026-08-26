@@ -17,6 +17,7 @@ import { Task } from "../../db/schema/tasks";
 import { Course } from "../../db/schema/courses";
 import { FocusSession } from "../../db/schema/focus-sessions";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { useRouter } from "expo-router";
 import { Settings } from "lucide-react-native";
@@ -25,6 +26,8 @@ import { logger } from "../../utils/logger";
 export default function ProfileScreen() {
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const setThemePreference = useUIStore((s) => s.setThemePreference);
+  const { colors, isDark: activeIsDark } = useTheme();
 
   const [preferences, setPreferences] = useState<Record<string, string>>({});
   const [completedTasksCount, setCompletedTasksCount] = useState(0);
@@ -40,60 +43,49 @@ export default function ProfileScreen() {
       const db = getDatabase();
       const taskRepo = new TaskRepository(db);
       const courseRepo = new CourseRepository(db);
-      const sessionRepo = new FocusSessionRepository(db);
+      const focusRepo = new FocusSessionRepository(db);
       const prefRepo = new PreferenceRepository(db);
 
-      const [allPrefs, allTasks, allCourses, allSessions] = await Promise.all([
-        prefRepo.getAll(),
-        taskRepo.listActive(),
-        courseRepo.listActive(),
-        sessionRepo.listAll(),
-      ]);
-
+      // Fetch preferences
+      const allPrefs = await prefRepo.getAll();
       setPreferences(allPrefs);
 
-      // Task aggregates
-      const completed = allTasks.filter((t: Task) => t.isCompleted);
-      setCompletedTasksCount(completed.length);
-      setTotalTasksCount(allTasks.length);
+      // Fetch task stats
+      const taskStats = await taskRepo.getTaskStatsSummary();
+      setCompletedTasksCount(taskStats.completedTasks);
+      setTotalTasksCount(taskStats.totalTasks);
 
-      // Focus aggregates
-      const workSessions = allSessions.filter((s: FocusSession) => s.sessionType === "work");
-      const focusMins = workSessions.reduce((acc: number, s: FocusSession) => acc + s.durationMinutes, 0);
-      setTotalFocusMinutes(focusMins);
+      // Fetch focus totals
+      const focusStats = await focusRepo.getAggregateStats();
+      setTotalFocusMinutes(focusStats.workMinutes);
+      setTodayFocusPomodoros(focusStats.workMinutes > 0 ? Math.floor(focusStats.workMinutes / 25) : 0);
 
-      // Today Pomodoros
-      const todayIso = new Date().toISOString().split("T")[0]!;
-      const todaySessions = workSessions.filter(
-        (s: FocusSession) => new Date(s.startedAt).toISOString().split("T")[0] === todayIso
-      );
-      setTodayFocusPomodoros(todaySessions.length);
-
-      // Live streaks
-      const completionDates = Array.from(
-        new Set(
-          completed
-            .filter((t: Task) => t.completedAt !== null)
-            .map((t: Task) => new Date(t.completedAt!).toISOString().split("T")[0]!)
-        )
-      );
-
-      const liveStreak = calculateLiveStreak(completionDates, todayIso);
-      const maxStreak = calculateHistoricalLongestStreak(completionDates);
+      // Compute live streaks directly from SQLite completion records
+      const completedDates = await taskRepo.listCompletedDates();
+      const liveStreak = calculateLiveStreak(completedDates);
+      const maxStreak = calculateHistoricalLongestStreak(completedDates);
       setCurrentStreak(liveStreak);
       setLongestStreak(maxStreak);
 
-      // Course breakdown
-      const stats: CourseStatItem[] = allCourses.map((course: Course) => {
-        const courseTasks = allTasks.filter((t: Task) => t.courseId === course.id);
-        const courseCompleted = courseTasks.filter((t: Task) => t.isCompleted);
-        return {
-          course,
-          totalTasks: courseTasks.length,
-          completedTasks: courseCompleted.length,
-        };
-      });
-      setCourseStats(stats);
+      // Compute course completion status
+      const activeCourses = await courseRepo.listActive();
+      const statsList: CourseStatItem[] = [];
+
+      for (const c of activeCourses) {
+        const courseTasks = await taskRepo.listByCourse(c.id);
+        const total = courseTasks.length;
+        const completed = courseTasks.filter((t) => t.isCompleted).length;
+        statsList.push({
+          courseId: c.id,
+          courseCode: c.code,
+          courseName: c.name,
+          color: c.color,
+          completedTasks: completed,
+          totalTasks: total,
+          progressPercent: total > 0 ? Math.round((completed / total) * 100) : 0,
+        });
+      }
+      setCourseStats(statsList);
     } catch (err) {
       logger.error("ProfileScreen", "Failed to load profile data", err);
     }
@@ -105,10 +97,12 @@ export default function ProfileScreen() {
 
   const handleToggleTheme = async (isDark: boolean) => {
     try {
+      const mode = isDark ? "dark" : "light";
       const db = getDatabase();
       const prefRepo = new PreferenceRepository(db);
-      await prefRepo.set("themeMode", isDark ? "dark" : "light");
-      setPreferences((prev) => ({ ...prev, themeMode: isDark ? "dark" : "light" }));
+      await prefRepo.set("themeMode", mode);
+      setThemePreference(mode);
+      setPreferences((prev) => ({ ...prev, themeMode: mode }));
       addToast(`Theme switched to ${isDark ? "Dark" : "Light"}`, "info");
     } catch (err) {
       logger.error("ProfileScreen", "Failed to update theme", err);
@@ -158,7 +152,7 @@ export default function ProfileScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Profile View Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {/* Hero with live streak */}
           <Hero name="Student" currentStreak={currentStreak} />
@@ -189,12 +183,12 @@ export default function ProfileScreen() {
 
           <View style={styles.moreSettingsContainer}>
             <TouchableOpacity
-              style={styles.moreSettingsBtn}
+              style={[styles.moreSettingsBtn, { backgroundColor: colors.textPrimary }]}
               onPress={() => router.push("/settings" as any)}
               activeOpacity={0.8}
             >
-              <Settings size={18} color="#FFFFFF" />
-              <Text style={styles.moreSettingsText}>Advanced Settings & Data</Text>
+              <Settings size={18} color={colors.bgCanvas} />
+              <Text style={[styles.moreSettingsText, { color: colors.bgCanvas }]}>Advanced Settings & Data</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -206,7 +200,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   scrollContent: {
     paddingBottom: SPACING["4xl"],
@@ -220,7 +213,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: THEME_COLORS.light.textPrimary,
     paddingVertical: SPACING.md,
     borderRadius: BORDER_RADIUS.full,
     gap: SPACING.xs,
@@ -228,6 +220,5 @@ const styles = StyleSheet.create({
   moreSettingsText: {
     ...TYPOGRAPHY.body,
     fontWeight: "600",
-    color: "#FFFFFF",
   },
 });

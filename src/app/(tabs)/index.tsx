@@ -19,6 +19,7 @@ import { FilterStrip } from "../../components/task/filter-strip";
 import { QuickAddModal } from "../../components/task/quick-add-modal";
 import { RescheduleModal } from "../../components/task/reschedule-modal";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { TaskRepository } from "../../db/repositories/task-repository";
 import { CourseRepository } from "../../db/repositories/course-repository";
 import { getDatabase } from "../../db/client";
@@ -208,21 +209,23 @@ export default function TasksScreen() {
     [courseMap, handleToggleComplete, openQuickAdd, openReschedule, router]
   );
 
+  const { colors } = useTheme();
+
   return (
     <ErrorBoundary fallbackTitle="Tasks View Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>Tasks</Text>
-            <Text style={styles.headerDate}>{selectedDate}</Text>
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Tasks</Text>
+            <Text style={[styles.headerDate, { color: colors.textMuted }]}>{selectedDate}</Text>
           </View>
           <TouchableOpacity
-            style={styles.headerAddBtn}
+            style={[styles.headerAddBtn, { backgroundColor: colors.textPrimary }]}
             onPress={openQuickAdd}
             activeOpacity={0.8}
           >
-            <Plus size={20} color="#FFFFFF" />
+            <Plus size={20} color={colors.bgCanvas} />
           </TouchableOpacity>
         </View>
 
@@ -242,8 +245,8 @@ export default function TasksScreen() {
         <View style={styles.listContainer}>
           {listItems.length === 0 && !isLoading ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No tasks for this day</Text>
-              <Text style={styles.emptySubtitle}>
+              <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No tasks for this day</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
                 Tap the + button to quickly add a task.
               </Text>
             </View>

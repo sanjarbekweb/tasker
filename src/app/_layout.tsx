@@ -5,12 +5,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "../components/ui/error-boundary";
 import { ToastContainer } from "../components/ui/toast";
-import { THEME_COLORS } from "../constants/theme";
+import { useTheme } from "../hooks/use-theme";
 import { StartupManager } from "../services/startup";
 import { logger } from "../utils/logger";
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
+  const { colors, isDark } = useTheme();
 
   useEffect(() => {
     async function prepareApp() {
@@ -28,18 +29,26 @@ export default function RootLayout() {
 
   if (!isReady) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={THEME_COLORS.light.textPrimary} />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.bgCanvas }]}>
+        <ActivityIndicator size="large" color={colors.textPrimary} />
       </View>
     );
   }
 
   return (
-    <GestureHandlerRootView style={styles.flex}>
+    <GestureHandlerRootView style={[styles.flex, { backgroundColor: colors.bgCanvas }]}>
       <SafeAreaProvider>
         <ErrorBoundary isRoot fallbackTitle="Numo Error" fallbackMessage="The application encountered a critical error.">
-          <StatusBar barStyle="dark-content" backgroundColor={THEME_COLORS.light.bgCanvas} />
-          <Stack screenOptions={{ headerShown: false }}>
+          <StatusBar
+            barStyle={isDark ? "light-content" : "dark-content"}
+            backgroundColor={colors.bgCanvas}
+          />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.bgCanvas },
+            }}
+          >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal/quick-add" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
             <Stack.Screen name="modal/reschedule" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
@@ -57,7 +66,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
     alignItems: "center",
     justifyContent: "center",
   },

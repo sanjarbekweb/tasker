@@ -16,6 +16,7 @@ import { CourseRepository } from "../../db/repositories/course-repository";
 import { Course } from "../../db/schema/courses";
 import { useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
@@ -33,6 +34,7 @@ const PRESET_COLORS = [
 export default function CoursesScreen() {
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const { colors, semantic } = useTheme();
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -100,33 +102,41 @@ export default function CoursesScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Courses View Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} activeOpacity={0.7}>
-            <ArrowLeft size={22} color={THEME_COLORS.light.textPrimary} />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Course Management</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Course Management</Text>
           <TouchableOpacity
             onPress={() => setIsCreating(!isCreating)}
-            style={styles.addBtn}
+            style={[styles.addBtn, { backgroundColor: colors.textPrimary }]}
             activeOpacity={0.8}
           >
-            <Plus size={18} color="#FFFFFF" />
+            <Plus size={18} color={colors.bgCanvas} />
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Create Course Accordion Form */}
           {isCreating && (
-            <View style={styles.createCard}>
-              <Text style={styles.createTitle}>Add New Course</Text>
+            <View style={[styles.createCard, { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault }]}>
+              <Text style={[styles.createTitle, { color: colors.textPrimary }]}>Add New Course</Text>
 
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Course Code</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Course Code</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.bgSurfaceElevated,
+                      borderColor: colors.borderDefault,
+                      color: colors.textPrimary,
+                    },
+                  ]}
                   placeholder="e.g. CS101"
+                  placeholderTextColor={colors.textMuted}
                   value={newCode}
                   onChangeText={setNewCode}
                   autoCapitalize="characters"
@@ -134,17 +144,25 @@ export default function CoursesScreen() {
               </View>
 
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Course Name</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Course Name</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.bgSurfaceElevated,
+                      borderColor: colors.borderDefault,
+                      color: colors.textPrimary,
+                    },
+                  ]}
                   placeholder="e.g. Intro to Computer Science"
+                  placeholderTextColor={colors.textMuted}
                   value={newName}
                   onChangeText={setNewName}
                 />
               </View>
 
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Accent Color</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Accent Color</Text>
                 <View style={styles.colorPalette}>
                   {PRESET_COLORS.map((c) => (
                     <TouchableOpacity
@@ -152,12 +170,12 @@ export default function CoursesScreen() {
                       style={[
                         styles.colorSwatch,
                         { backgroundColor: c },
-                        newColor === c && styles.colorSwatchActive,
+                        newColor === c && [styles.colorSwatchActive, { borderColor: colors.textPrimary }],
                       ]}
                       onPress={() => setNewColor(c)}
                       activeOpacity={0.8}
                     >
-                      {newColor === c && <Check size={14} color="#FFFFFF" />}
+                      {newColor === c && <Check size={16} color="#FFFFFF" strokeWidth={3} />}
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -169,42 +187,50 @@ export default function CoursesScreen() {
                   style={styles.cancelBtn}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                  <Text style={[styles.cancelBtnText, { color: colors.textMuted }]}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleCreateCourse}
-                  style={styles.submitBtn}
+                  style={[styles.submitBtn, { backgroundColor: colors.textPrimary }]}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.submitBtnText}>Add Course</Text>
+                  <Text style={[styles.submitBtnText, { color: colors.bgCanvas }]}>Save Course</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
           {/* Courses List */}
-          <Text style={styles.sectionTitle}>Active Courses ({courses.length})</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Active Courses ({courses.length})</Text>
 
           {courses.length === 0 && !isLoading ? (
             <View style={styles.emptyState}>
-              <BookOpen size={36} color={THEME_COLORS.light.textMuted} />
-              <Text style={styles.emptyTitle}>No courses added yet</Text>
-              <Text style={styles.emptySubtitle}>Tap the + button above to create your first course.</Text>
+              <BookOpen size={40} color={colors.textMuted} />
+              <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No courses added yet</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
+                Add your semester courses to assign priority and color coding to your tasks and events.
+              </Text>
             </View>
           ) : (
             courses.map((course) => (
-              <View key={course.id} style={styles.courseItem}>
+              <View
+                key={course.id}
+                style={[
+                  styles.courseItem,
+                  { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+                ]}
+              >
                 <View style={[styles.courseColorIndicator, { backgroundColor: course.color }]} />
                 <View style={styles.courseInfo}>
-                  <Text style={styles.courseCode}>{course.code}</Text>
-                  <Text style={styles.courseName}>{course.name}</Text>
+                  <Text style={[styles.courseCode, { color: colors.textPrimary }]}>{course.code}</Text>
+                  <Text style={[styles.courseName, { color: colors.textMuted }]}>{course.name}</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => handleDeleteCourse(course.id)}
                   style={styles.deleteBtn}
                   activeOpacity={0.7}
                 >
-                  <Trash2 size={18} color={THEME_COLORS.light.textMuted} />
+                  <Trash2 size={18} color={semantic.stateError} />
                 </TouchableOpacity>
               </View>
             ))

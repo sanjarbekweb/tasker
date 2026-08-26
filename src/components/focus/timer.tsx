@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { THEME_COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS, getCourseAccentTint } from "../../constants/theme";
+import { TYPOGRAPHY, SPACING, BORDER_RADIUS } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { FocusMode, FocusStatus, formatTimeRemaining } from "../../domain/focus";
 
 export interface TimerProps {
@@ -16,10 +17,11 @@ export const Timer = memo(function Timer({
   mode,
   status,
 }: TimerProps) {
+  const { colors, semantic, getCourseAccentTint } = useTheme();
   const isBreak = mode === "short_break" || mode === "long_break";
   const accentColor = isBreak
-    ? THEME_COLORS.semantic.eventPersonal
-    : THEME_COLORS.semantic.focusAccent;
+    ? semantic.eventPersonal
+    : semantic.focusAccent;
 
   const formattedTime = formatTimeRemaining(remainingSeconds);
 
@@ -37,6 +39,10 @@ export const Timer = memo(function Timer({
         <View
           style={[
             styles.innerCircle,
+            {
+              backgroundColor: colors.bgSurfaceCard,
+              borderColor: colors.borderDefault,
+            },
             status === "running" && {
               borderColor: accentColor,
               shadowColor: accentColor,
@@ -46,15 +52,15 @@ export const Timer = memo(function Timer({
             },
           ]}
         >
-          <Text style={[styles.timerDigits, { color: THEME_COLORS.light.textPrimary }]}>
+          <Text style={[styles.timerDigits, { color: colors.textPrimary }]}>
             {formattedTime}
           </Text>
           <Text style={[styles.modeLabel, { color: accentColor }]}>
             {mode === "work" ? "FOCUS" : mode === "short_break" ? "SHORT BREAK" : "LONG BREAK"}
           </Text>
           {status === "paused" && (
-            <View style={styles.pausedBadge}>
-              <Text style={styles.pausedText}>PAUSED</Text>
+            <View style={[styles.pausedBadge, { backgroundColor: colors.bgSurfaceElevated }]}>
+              <Text style={[styles.pausedText, { color: colors.textMuted }]}>PAUSED</Text>
             </View>
           )}
         </View>
@@ -82,9 +88,7 @@ const styles = StyleSheet.create({
     width: 228,
     height: 228,
     borderRadius: 114,
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderWidth: 2,
-    borderColor: THEME_COLORS.light.borderDefault,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -101,7 +105,6 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
   pausedBadge: {
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     paddingHorizontal: SPACING.sm,
     paddingVertical: 2,
     borderRadius: BORDER_RADIUS.sm,
@@ -111,6 +114,5 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
   },
 });

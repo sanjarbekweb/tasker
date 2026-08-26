@@ -29,6 +29,7 @@ import { Subtask } from "../../db/schema/subtasks";
 import { Course } from "../../db/schema/courses";
 import { useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
@@ -37,6 +38,7 @@ export default function TaskDetailScreen() {
   const taskId = params.id;
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const { colors, semantic } = useTheme();
 
   const [task, setTask] = useState<Task | null>(null);
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
@@ -141,8 +143,10 @@ export default function TaskDetailScreen() {
     try {
       const db = getDatabase();
       const subtaskRepo = new SubtaskRepository(db);
-      await subtaskRepo.toggleComplete(subtask.id, !subtask.isCompleted);
-      const updated = await subtaskRepo.listByTaskId(taskId);
+      await subtaskRepo.update(subtask.id, {
+        isCompleted: !subtask.isCompleted,
+      });
+      const updated = await subtaskRepo.listByTaskId(subtask.taskId);
       setSubtasks(updated);
     } catch (err) {
       logger.error("TaskDetailScreen", "Failed to toggle subtask", err);
@@ -150,6 +154,7 @@ export default function TaskDetailScreen() {
   };
 
   const handleDeleteSubtask = async (subtaskId: string) => {
+    if (!taskId) return;
     try {
       const db = getDatabase();
       const subtaskRepo = new SubtaskRepository(db);
@@ -161,31 +166,33 @@ export default function TaskDetailScreen() {
     }
   };
 
-  if (isLoading || !task) {
+  if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading task...</Text>
-        </View>
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: colors.bgCanvas }]}>
+        <Text style={[styles.loadingText, { color: colors.textMuted }]}>Loading task details...</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <ErrorBoundary fallbackTitle="Task Detail Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} activeOpacity={0.7}>
-            <ArrowLeft size={22} color={THEME_COLORS.light.textPrimary} />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Task</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Edit Task</Text>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={handleDelete} style={styles.iconBtn} activeOpacity={0.7}>
-              <Trash2 size={20} color={THEME_COLORS.semantic.priorityHigh} />
+              <Trash2 size={20} color={semantic.stateError} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSave} style={styles.saveBtn} activeOpacity={0.8}>
-              <Check size={18} color="#FFFFFF" />
+            <TouchableOpacity
+              onPress={handleSave}
+              style={[styles.saveBtn, { backgroundColor: colors.textPrimary }]}
+              activeOpacity={0.8}
+            >
+              <Check size={18} color={colors.bgCanvas} />
             </TouchableOpacity>
           </View>
         </View>
@@ -193,46 +200,68 @@ export default function TaskDetailScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Title */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Title</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Task Title</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               value={title}
               onChangeText={setTitle}
-              placeholder="Task Title"
+              placeholder="Task title"
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
           {/* Description */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Description</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Description</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[
+                styles.input,
+                styles.textArea,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               value={description}
               onChangeText={setDescription}
-              placeholder="Description (optional)"
+              placeholder="Add description..."
+              placeholderTextColor={colors.textMuted}
               multiline
+              numberOfLines={4}
             />
           </View>
 
           {/* Priority */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Priority</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Priority</Text>
             <View style={styles.priorityRow}>
               {(["p1", "p2", "p3"] as PriorityLevel[]).map((p) => {
                 const isSelected = priority === p;
                 const color =
                   p === "p1"
-                    ? THEME_COLORS.semantic.priorityHigh
+                    ? semantic.priorityHigh
                     : p === "p2"
-                    ? THEME_COLORS.semantic.priorityMedium
-                    : THEME_COLORS.semantic.priorityLow;
+                    ? semantic.priorityMedium
+                    : semantic.priorityLow;
 
                 return (
                   <TouchableOpacity
                     key={p}
                     style={[
                       styles.priorityPill,
-                      isSelected && { borderColor: color, backgroundColor: `${color}15` },
+                      {
+                        backgroundColor: colors.bgSurfaceCard,
+                        borderColor: colors.borderDefault,
+                      },
+                      isSelected && { borderColor: color, backgroundColor: `${color}20` },
                     ]}
                     onPress={() => setPriority(p)}
                     activeOpacity={0.7}
@@ -241,7 +270,8 @@ export default function TaskDetailScreen() {
                     <Text
                       style={[
                         styles.priorityText,
-                        isSelected && { color: THEME_COLORS.light.textPrimary, fontWeight: "600" },
+                        { color: colors.textMuted },
+                        isSelected && { color: colors.textPrimary, fontWeight: "600" },
                       ]}
                     >
                       {p.toUpperCase()}
@@ -256,19 +286,26 @@ export default function TaskDetailScreen() {
           {courses.length > 0 && (
             <View style={styles.fieldGroup}>
               <View style={styles.labelWithIcon}>
-                <BookOpen size={16} color={THEME_COLORS.light.textMuted} />
-                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Course</Text>
+                <BookOpen size={16} color={colors.textMuted} />
+                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Course</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <TouchableOpacity
-                  style={[styles.coursePill, courseId === null && styles.coursePillActive]}
+                  style={[
+                    styles.coursePill,
+                    {
+                      backgroundColor: courseId === null ? colors.textPrimary : colors.bgSurfaceCard,
+                      borderColor: courseId === null ? colors.textPrimary : colors.borderDefault,
+                    },
+                  ]}
                   onPress={() => setCourseId(null)}
                   activeOpacity={0.7}
                 >
                   <Text
                     style={[
                       styles.coursePillText,
-                      courseId === null && styles.coursePillTextActive,
+                      { color: courseId === null ? colors.bgCanvas : colors.textPrimary },
+                      courseId === null && { fontWeight: "600" },
                     ]}
                   >
                     None
@@ -282,8 +319,10 @@ export default function TaskDetailScreen() {
                       key={course.id}
                       style={[
                         styles.coursePill,
-                        { borderColor: course.color },
-                        isSelected && { backgroundColor: `${course.color}20` },
+                        {
+                          backgroundColor: isSelected ? `${course.color}20` : colors.bgSurfaceCard,
+                          borderColor: course.color,
+                        },
                       ]}
                       onPress={() => setCourseId(course.id)}
                       activeOpacity={0.7}
@@ -292,7 +331,8 @@ export default function TaskDetailScreen() {
                       <Text
                         style={[
                           styles.coursePillText,
-                          isSelected && { color: THEME_COLORS.light.textPrimary, fontWeight: "600" },
+                          { color: colors.textPrimary },
+                          isSelected && { fontWeight: "600" },
                         ]}
                       >
                         {course.code}
@@ -307,38 +347,47 @@ export default function TaskDetailScreen() {
           {/* Due Date */}
           <View style={styles.fieldGroup}>
             <View style={styles.labelWithIcon}>
-              <Calendar size={16} color={THEME_COLORS.light.textMuted} />
-              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Due Date</Text>
+              <Calendar size={16} color={colors.textMuted} />
+              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Due Date</Text>
             </View>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               value={dueDate}
               onChangeText={setDueDate}
               placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
           {/* Subtasks Section */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Subtasks ({subtasks.filter((s) => s.isCompleted).length}/{subtasks.length})</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Subtasks ({subtasks.filter((s) => s.isCompleted).length}/{subtasks.length})</Text>
             
             {subtasks.map((st) => (
-              <View key={st.id} style={styles.subtaskRow}>
+              <View key={st.id} style={[styles.subtaskRow, { borderBottomColor: colors.borderDefault }]}>
                 <TouchableOpacity
                   onPress={() => handleToggleSubtask(st)}
                   style={styles.subtaskCheck}
                   activeOpacity={0.7}
                 >
                   {st.isCompleted ? (
-                    <CheckSquare size={18} color={THEME_COLORS.semantic.stateSuccess} />
+                    <CheckSquare size={18} color={semantic.stateSuccess} />
                   ) : (
-                    <Square size={18} color={THEME_COLORS.light.textMuted} />
+                    <Square size={18} color={colors.textMuted} />
                   )}
                 </TouchableOpacity>
                 <Text
                   style={[
                     styles.subtaskTitle,
-                    st.isCompleted && styles.subtaskCompleted,
+                    { color: colors.textPrimary },
+                    st.isCompleted && [styles.subtaskCompleted, { color: colors.textMuted }],
                   ]}
                 >
                   {st.title}
@@ -348,7 +397,7 @@ export default function TaskDetailScreen() {
                   style={styles.subtaskDelete}
                   activeOpacity={0.7}
                 >
-                  <Trash2 size={15} color={THEME_COLORS.light.textMuted} />
+                  <Trash2 size={15} color={colors.textMuted} />
                 </TouchableOpacity>
               </View>
             ))}
@@ -356,18 +405,27 @@ export default function TaskDetailScreen() {
             {/* Add subtask input */}
             <View style={styles.addSubtaskRow}>
               <TextInput
-                style={[styles.input, styles.subtaskInput]}
+                style={[
+                  styles.input,
+                  styles.subtaskInput,
+                  {
+                    backgroundColor: colors.bgSurfaceCard,
+                    borderColor: colors.borderDefault,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 value={newSubtaskTitle}
                 onChangeText={setNewSubtaskTitle}
                 placeholder="Add subtask..."
+                placeholderTextColor={colors.textMuted}
                 onSubmitEditing={handleAddSubtask}
               />
               <TouchableOpacity
                 onPress={handleAddSubtask}
-                style={styles.addSubtaskBtn}
+                style={[styles.addSubtaskBtn, { backgroundColor: colors.textPrimary }]}
                 activeOpacity={0.8}
               >
-                <Plus size={18} color="#FFFFFF" />
+                <Plus size={18} color={colors.bgCanvas} />
               </TouchableOpacity>
             </View>
           </View>

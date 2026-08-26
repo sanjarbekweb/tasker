@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { parseQuickAdd } from "../../domain/quick-add";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { Modal } from "../ui/modal";
 import { Button } from "../ui/button";
 import { PriorityBadge, CoursePill } from "../ui/badge";
@@ -27,6 +28,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const { colors } = useTheme();
   const [inputText, setInputText] = useState("");
 
   const draft = useMemo(() => {
@@ -56,15 +58,22 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   return (
     <Modal visible={visible} onClose={onClose}>
       <View style={styles.container}>
-        <Text style={styles.title}>Quick Add Task</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Quick Add Task</Text>
+        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
           e.g. &quot;Finish CS101 assignment tomorrow at 5pm p1 [2 pomodoros]&quot;
         </Text>
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.bgSurfaceElevated,
+              borderColor: colors.borderDefault,
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder="What needs to be done?"
-          placeholderTextColor={THEME_COLORS.light.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={inputText}
           onChangeText={setInputText}
           autoFocus={visible}
@@ -75,19 +84,19 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
         {/* Live Parsed Token Chips Preview */}
         {draft && (
           <View style={styles.previewContainer}>
-            <Text style={styles.previewLabel}>Parsed:</Text>
+            <Text style={[styles.previewLabel, { color: colors.textMuted }]}>Parsed:</Text>
             <View style={styles.chipsRow}>
               {draft.dueDate && (
-                <View style={styles.chip}>
-                  <Calendar size={12} color={THEME_COLORS.light.textMuted} />
-                  <Text style={styles.chipText}>{draft.dueDate}</Text>
+                <View style={[styles.chip, { backgroundColor: colors.bgSurfaceElevated }]}>
+                  <Calendar size={12} color={colors.textMuted} />
+                  <Text style={[styles.chipText, { color: colors.textPrimary }]}>{draft.dueDate}</Text>
                 </View>
               )}
 
               {draft.timeBlockStart && (
-                <View style={styles.chip}>
-                  <Clock size={12} color={THEME_COLORS.light.textMuted} />
-                  <Text style={styles.chipText}>{draft.timeBlockStart}</Text>
+                <View style={[styles.chip, { backgroundColor: colors.bgSurfaceElevated }]}>
+                  <Clock size={12} color={colors.textMuted} />
+                  <Text style={[styles.chipText, { color: colors.textPrimary }]}>{draft.timeBlockStart}</Text>
                 </View>
               )}
 
@@ -105,9 +114,9 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
               )}
 
               {draft.estimatedPomodoros && (
-                <View style={styles.chip}>
-                  <Tag size={12} color={THEME_COLORS.light.textMuted} />
-                  <Text style={styles.chipText}>
+                <View style={[styles.chip, { backgroundColor: colors.bgSurfaceElevated }]}>
+                  <Tag size={12} color={colors.textMuted} />
+                  <Text style={[styles.chipText, { color: colors.textPrimary }]}>
                     {draft.estimatedPomodoros} pomodoro{draft.estimatedPomodoros > 1 ? "s" : ""}
                   </Text>
                 </View>
@@ -142,23 +151,18 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.heading,
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: 2,
   },
   subtitle: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     marginBottom: SPACING.md,
   },
   input: {
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     borderRadius: BORDER_RADIUS.xl,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     ...TYPOGRAPHY.body,
-    color: THEME_COLORS.light.textPrimary,
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     marginBottom: SPACING.md,
   },
   previewContainer: {
@@ -166,7 +170,6 @@ const styles = StyleSheet.create({
   },
   previewLabel: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     fontSize: 11,
     marginBottom: SPACING.xs,
   },
@@ -178,7 +181,6 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.xs,
     borderRadius: BORDER_RADIUS.md,
@@ -188,7 +190,6 @@ const styles = StyleSheet.create({
   chipText: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textPrimary,
     marginLeft: 4,
   },
   actionsRow: {

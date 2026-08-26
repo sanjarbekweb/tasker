@@ -17,6 +17,7 @@ import { Course } from "../../db/schema/courses";
 import { EventType } from "../../db/schema/events";
 import { useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { parseDateAndTimeToTimestamp } from "../../domain/scheduling";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
@@ -24,6 +25,7 @@ import { logger } from "../../utils/logger";
 export default function EventCreateScreen() {
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const { colors, semantic } = useTheme();
 
   const [title, setTitle] = useState("");
   const [eventType, setEventType] = useState<EventType>("class");
@@ -95,31 +97,43 @@ export default function EventCreateScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Event Create Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} activeOpacity={0.7}>
-            <ArrowLeft size={22} color={THEME_COLORS.light.textPrimary} />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>New Event</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>New Event</Text>
           <TouchableOpacity
             onPress={handleSave}
             disabled={isSubmitting}
-            style={[styles.saveBtn, !title.trim() && styles.saveBtnDisabled]}
+            style={[
+              styles.saveBtn,
+              { backgroundColor: colors.textPrimary },
+              !title.trim() && styles.saveBtnDisabled,
+            ]}
             activeOpacity={0.8}
           >
-            <Check size={18} color="#FFFFFF" />
-            <Text style={styles.saveBtnText}>Save</Text>
+            <Check size={18} color={colors.bgCanvas} />
+            <Text style={[styles.saveBtnText, { color: colors.bgCanvas }]}>Save</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Title */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Event Title</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Event Title</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholder="e.g. Physics Lecture"
+              placeholderTextColor={colors.textMuted}
               value={title}
               onChangeText={setTitle}
               autoFocus
@@ -128,17 +142,25 @@ export default function EventCreateScreen() {
 
           {/* Event Type */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Event Category</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Event Category</Text>
             <View style={styles.typeRow}>
               <TouchableOpacity
-                style={[styles.typePill, eventType === "class" && styles.typePillClassActive]}
+                style={[
+                  styles.typePill,
+                  { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+                  eventType === "class" && {
+                    borderColor: semantic.eventClass,
+                    backgroundColor: `${semantic.eventClass}20`,
+                  },
+                ]}
                 onPress={() => setEventType("class")}
                 activeOpacity={0.7}
               >
                 <Text
                   style={[
                     styles.typePillText,
-                    eventType === "class" && styles.typePillTextActive,
+                    { color: colors.textMuted },
+                    eventType === "class" && { color: colors.textPrimary, fontWeight: "600" },
                   ]}
                 >
                   Class / Academic
@@ -146,14 +168,22 @@ export default function EventCreateScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.typePill, eventType === "study" && styles.typePillPersonalActive]}
+                style={[
+                  styles.typePill,
+                  { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+                  eventType === "study" && {
+                    borderColor: semantic.eventPersonal,
+                    backgroundColor: `${semantic.eventPersonal}20`,
+                  },
+                ]}
                 onPress={() => setEventType("study")}
                 activeOpacity={0.7}
               >
                 <Text
                   style={[
                     styles.typePillText,
-                    eventType === "study" && styles.typePillTextActive,
+                    { color: colors.textMuted },
+                    eventType === "study" && { color: colors.textPrimary, fontWeight: "600" },
                   ]}
                 >
                   Personal / Study
@@ -166,8 +196,8 @@ export default function EventCreateScreen() {
           {eventType === "class" && courses.length > 0 && (
             <View style={styles.fieldGroup}>
               <View style={styles.labelWithIcon}>
-                <BookOpen size={16} color={THEME_COLORS.light.textMuted} />
-                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Course</Text>
+                <BookOpen size={16} color={colors.textMuted} />
+                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Course</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {courses.map((course) => {
@@ -177,8 +207,10 @@ export default function EventCreateScreen() {
                       key={course.id}
                       style={[
                         styles.coursePill,
-                        { borderColor: course.color },
-                        isSelected && { backgroundColor: `${course.color}20` },
+                        {
+                          backgroundColor: isSelected ? `${course.color}20` : colors.bgSurfaceCard,
+                          borderColor: course.color,
+                        },
                       ]}
                       onPress={() => setCourseId(course.id)}
                       activeOpacity={0.7}
@@ -187,7 +219,8 @@ export default function EventCreateScreen() {
                       <Text
                         style={[
                           styles.coursePillText,
-                          isSelected && { color: THEME_COLORS.light.textPrimary, fontWeight: "600" },
+                          { color: colors.textPrimary },
+                          isSelected && { fontWeight: "600" },
                         ]}
                       >
                         {course.code}
@@ -202,14 +235,22 @@ export default function EventCreateScreen() {
           {/* Date */}
           <View style={styles.fieldGroup}>
             <View style={styles.labelWithIcon}>
-              <Calendar size={16} color={THEME_COLORS.light.textMuted} />
-              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Date (YYYY-MM-DD)</Text>
+              <Calendar size={16} color={colors.textMuted} />
+              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Date (YYYY-MM-DD)</Text>
             </View>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               value={date}
               onChangeText={setDate}
               placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
@@ -217,27 +258,43 @@ export default function EventCreateScreen() {
           <View style={styles.timeRow}>
             <View style={[styles.fieldGroup, { flex: 1 }]}>
               <View style={styles.labelWithIcon}>
-                <Clock size={16} color={THEME_COLORS.light.textMuted} />
-                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Start (HH:MM)</Text>
+                <Clock size={16} color={colors.textMuted} />
+                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Start (HH:MM)</Text>
               </View>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgSurfaceCard,
+                    borderColor: colors.borderDefault,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 value={startTime}
                 onChangeText={setStartTime}
                 placeholder="10:00"
+                placeholderTextColor={colors.textMuted}
               />
             </View>
 
             <View style={[styles.fieldGroup, { flex: 1 }]}>
               <View style={styles.labelWithIcon}>
-                <Clock size={16} color={THEME_COLORS.light.textMuted} />
-                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>End (HH:MM)</Text>
+                <Clock size={16} color={colors.textMuted} />
+                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>End (HH:MM)</Text>
               </View>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgSurfaceCard,
+                    borderColor: colors.borderDefault,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 value={endTime}
                 onChangeText={setEndTime}
                 placeholder="11:30"
+                placeholderTextColor={colors.textMuted}
               />
             </View>
           </View>
@@ -245,29 +302,57 @@ export default function EventCreateScreen() {
           {/* Recurring Event Toggle */}
           <View style={styles.fieldGroup}>
             <TouchableOpacity
-              style={styles.recurrenceToggle}
+              style={[
+                styles.recurrenceToggle,
+                { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+              ]}
               onPress={() => setIsRecurring(!isRecurring)}
               activeOpacity={0.7}
             >
               <View style={styles.labelWithIcon}>
-                <Repeat size={18} color={isRecurring ? THEME_COLORS.light.textPrimary : THEME_COLORS.light.textMuted} />
-                <Text style={[styles.recurrenceLabel, isRecurring && styles.recurrenceLabelActive]}>
+                <Repeat size={18} color={isRecurring ? colors.textPrimary : colors.textMuted} />
+                <Text
+                  style={[
+                    styles.recurrenceLabel,
+                    { color: isRecurring ? colors.textPrimary : colors.textMuted },
+                    isRecurring && { fontWeight: "600" },
+                  ]}
+                >
                   Recurring Series
                 </Text>
               </View>
-              <View style={[styles.toggleSwitch, isRecurring && styles.toggleSwitchActive]}>
-                <View style={[styles.toggleThumb, isRecurring && styles.toggleThumbActive]} />
+              <View
+                style={[
+                  styles.toggleSwitch,
+                  { backgroundColor: isRecurring ? colors.textPrimary : colors.borderDefault },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.toggleThumb,
+                    { backgroundColor: colors.bgCanvas },
+                    isRecurring && styles.toggleThumbActive,
+                  ]}
+                />
               </View>
             </TouchableOpacity>
 
             {isRecurring && (
               <View style={styles.recurrenceDetails}>
-                <Text style={styles.fieldLabel}>Recurrence Rule (iCal RRULE)</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Recurrence Rule (iCal RRULE)</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.bgSurfaceCard,
+                      borderColor: colors.borderDefault,
+                      color: colors.textPrimary,
+                    },
+                  ]}
                   value={recurrenceRule}
                   onChangeText={setRecurrenceRule}
                   placeholder="RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR"
+                  placeholderTextColor={colors.textMuted}
                 />
               </View>
             )}

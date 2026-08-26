@@ -9,7 +9,8 @@ import {
   Dimensions,
   ViewStyle,
 } from "react-native";
-import { THEME_COLORS, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export interface ModalProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export interface ModalProps {
 }
 
 export const Modal: React.FC<ModalProps> = ({ visible, onClose, children, style }) => {
+  const { colors } = useTheme();
   const slideAnim = useRef(new Animated.Value(300)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -68,12 +70,14 @@ export const Modal: React.FC<ModalProps> = ({ visible, onClose, children, style 
               style={[
                 styles.sheet,
                 {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
                   transform: [{ translateY: slideAnim }],
                 },
                 style,
               ]}
             >
-              <View style={styles.dragIndicator} />
+              <View style={[styles.dragIndicator, { backgroundColor: colors.borderDefault }]} />
               {children}
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -86,14 +90,12 @@ export const Modal: React.FC<ModalProps> = ({ visible, onClose, children, style 
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderTopLeftRadius: BORDER_RADIUS["3xl"],
     borderTopRightRadius: BORDER_RADIUS["3xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     borderBottomWidth: 0,
     padding: SPACING.xl,
@@ -104,7 +106,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: BORDER_RADIUS.full,
-    backgroundColor: THEME_COLORS.light.borderDefault,
     alignSelf: "center",
     marginBottom: SPACING.lg,
   },

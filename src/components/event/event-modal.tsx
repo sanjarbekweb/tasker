@@ -6,7 +6,8 @@ import { TimeSlider } from "./time-slider";
 import { CoursePill } from "../ui/badge";
 import { Course } from "../../db/schema/courses";
 import { Event, EventType } from "../../db/schema/events";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export interface EventModalProps {
   visible: boolean;
@@ -45,6 +46,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { colors } = useTheme();
   const [title, setTitle] = useState("");
   const [eventType, setEventType] = useState<EventType>("class");
   const [courseId, setCourseId] = useState<string | null>(null);
@@ -85,18 +87,25 @@ export const EventModal: React.FC<EventModalProps> = ({
   return (
     <Modal visible={visible} onClose={onClose}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
-        <Text style={styles.title}>{initialEvent ? "Edit Event" : "Create Event"}</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{initialEvent ? "Edit Event" : "Create Event"}</Text>
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.bgSurfaceElevated,
+              borderColor: colors.borderDefault,
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder="Event Title"
-          placeholderTextColor={THEME_COLORS.light.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={title}
           onChangeText={setTitle}
         />
 
         {/* Event Type Selector */}
-        <View style={styles.segmentedRow}>
+        <View style={[styles.segmentedRow, { backgroundColor: colors.bgSurfaceElevated }]}>
           {(["class", "study", "exam", "custom"] as EventType[]).map((type) => {
             const isSelected = eventType === type;
             return (
@@ -104,13 +113,14 @@ export const EventModal: React.FC<EventModalProps> = ({
                 key={type}
                 style={[
                   styles.segmentBtn,
-                  isSelected && styles.segmentBtnSelected,
+                  isSelected && [styles.segmentBtnSelected, { backgroundColor: colors.bgSurfaceCard }],
                 ]}
                 onPress={() => setEventType(type)}
               >
                 <Text
                   style={[
                     styles.segmentText,
+                    { color: isSelected ? colors.textPrimary : colors.textMuted },
                     isSelected && styles.segmentTextSelected,
                   ]}
                 >
@@ -124,7 +134,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Course selection if class event */}
         {eventType === "class" && courses.length > 0 && (
           <View style={styles.courseSelectContainer}>
-            <Text style={styles.fieldLabel}>Course</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>Course</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {courses.map((c) => {
                 const isSelected = c.id === courseId;
@@ -182,23 +192,18 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.heading,
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: SPACING.md,
   },
   input: {
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     borderRadius: BORDER_RADIUS.xl,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     ...TYPOGRAPHY.body,
-    color: THEME_COLORS.light.textPrimary,
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     marginBottom: SPACING.md,
   },
   segmentedRow: {
     flexDirection: "row",
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     borderRadius: BORDER_RADIUS.xl,
     padding: 3,
     marginBottom: SPACING.md,
@@ -210,23 +215,25 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
   },
   segmentBtnSelected: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   segmentText: {
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
   },
   segmentTextSelected: {
-    color: THEME_COLORS.light.textPrimary,
+    fontWeight: "700",
   },
   courseSelectContainer: {
     marginBottom: SPACING.md,
   },
   fieldLabel: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     marginBottom: SPACING.xs,
   },
   courseOption: {

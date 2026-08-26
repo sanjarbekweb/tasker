@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 
+import { useTheme } from "../../hooks/use-theme";
+
 export interface DateSelectorProps {
   selectedDate: string; // YYYY-MM-DD
   onSelectDate: (date: string) => void;
@@ -28,6 +30,7 @@ export const DateSelector = memo(function DateSelector({
   onSelectDate,
   daysRange = 14,
 }: DateSelectorProps) {
+  const { colors, semantic } = useTheme();
   const dates: { iso: string; dayNum: number; dayName: string; isToday: boolean }[] = [];
   const todayIso = formatDateToIso(new Date());
 
@@ -47,7 +50,7 @@ export const DateSelector = memo(function DateSelector({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -60,7 +63,10 @@ export const DateSelector = memo(function DateSelector({
               key={item.iso}
               style={[
                 styles.dateButton,
-                isSelected && styles.dateButtonSelected,
+                {
+                  backgroundColor: isSelected ? colors.textPrimary : colors.bgSurfaceCard,
+                  borderColor: isSelected ? colors.textPrimary : colors.borderDefault,
+                },
               ]}
               onPress={() => onSelectDate(item.iso)}
               activeOpacity={0.7}
@@ -68,8 +74,8 @@ export const DateSelector = memo(function DateSelector({
               <Text
                 style={[
                   styles.dayName,
-                  isSelected && styles.dayNameSelected,
-                  item.isToday && !isSelected && styles.dayNameToday,
+                  { color: isSelected ? colors.bgCanvas : colors.textMuted },
+                  item.isToday && !isSelected && { color: semantic.eventClass, fontWeight: "700" },
                 ]}
               >
                 {item.dayName}
@@ -77,13 +83,20 @@ export const DateSelector = memo(function DateSelector({
               <Text
                 style={[
                   styles.dayNum,
-                  isSelected && styles.dayNumSelected,
-                  item.isToday && !isSelected && styles.dayNumToday,
+                  { color: isSelected ? colors.bgCanvas : colors.textPrimary },
+                  item.isToday && !isSelected && { color: semantic.eventClass },
                 ]}
               >
                 {item.dayNum}
               </Text>
-              {item.isToday && <View style={[styles.todayDot, isSelected && styles.todayDotSelected]} />}
+              {item.isToday && (
+                <View
+                  style={[
+                    styles.todayDot,
+                    { backgroundColor: isSelected ? colors.bgCanvas : semantic.eventClass },
+                  ]}
+                />
+              )}
             </TouchableOpacity>
           );
         })}
@@ -95,7 +108,6 @@ export const DateSelector = memo(function DateSelector({
 const styles = StyleSheet.create({
   container: {
     paddingVertical: SPACING.sm,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
@@ -106,48 +118,23 @@ const styles = StyleSheet.create({
     width: 48,
     height: 64,
     borderRadius: BORDER_RADIUS.xl,
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     marginRight: SPACING.sm,
-  },
-  dateButtonSelected: {
-    backgroundColor: THEME_COLORS.light.textPrimary,
-    borderColor: THEME_COLORS.light.textPrimary,
   },
   dayName: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textMuted,
     marginBottom: 2,
-  },
-  dayNameSelected: {
-    color: "rgba(255, 255, 255, 0.7)",
-  },
-  dayNameToday: {
-    color: THEME_COLORS.semantic.eventClass,
-    fontWeight: "700",
   },
   dayNum: {
     ...TYPOGRAPHY.body,
     fontWeight: "700",
     fontSize: 16,
-    color: THEME_COLORS.light.textPrimary,
-  },
-  dayNumSelected: {
-    color: "#FFFFFF",
-  },
-  dayNumToday: {
-    color: THEME_COLORS.semantic.eventClass,
   },
   todayDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: THEME_COLORS.semantic.eventClass,
     marginTop: 2,
-  },
-  todayDotSelected: {
-    backgroundColor: "#FFFFFF",
   },
 });

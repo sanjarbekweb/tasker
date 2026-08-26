@@ -17,12 +17,14 @@ import { Course } from "../../db/schema/courses";
 import { PriorityLevel } from "../../db/schema/tasks";
 import { useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
 export default function TaskCreateScreen() {
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const { colors, semantic } = useTheme();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -79,32 +81,43 @@ export default function TaskCreateScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Task Create Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} activeOpacity={0.7}>
-            <ArrowLeft size={22} color={THEME_COLORS.light.textPrimary} />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>New Task</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>New Task</Text>
           <TouchableOpacity
             onPress={handleSave}
             disabled={isSubmitting}
-            style={[styles.saveBtn, !title.trim() && styles.saveBtnDisabled]}
+            style={[
+              styles.saveBtn,
+              { backgroundColor: colors.textPrimary },
+              !title.trim() && styles.saveBtnDisabled,
+            ]}
             activeOpacity={0.8}
           >
-            <Check size={18} color="#FFFFFF" />
-            <Text style={styles.saveBtnText}>Save</Text>
+            <Check size={18} color={colors.bgCanvas} />
+            <Text style={[styles.saveBtnText, { color: colors.bgCanvas }]}>Save</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Title input */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Task Title</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Task Title</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholder="e.g. Read Physics Chapter 4"
-              placeholderTextColor={THEME_COLORS.light.textMuted}
+              placeholderTextColor={colors.textMuted}
               value={title}
               onChangeText={setTitle}
               autoFocus
@@ -113,11 +126,19 @@ export default function TaskCreateScreen() {
 
           {/* Description input */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Description (Optional)</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Description (Optional)</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[
+                styles.input,
+                styles.textArea,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholder="Add notes, links, or instructions..."
-              placeholderTextColor={THEME_COLORS.light.textMuted}
+              placeholderTextColor={colors.textMuted}
               value={description}
               onChangeText={setDescription}
               multiline
@@ -127,23 +148,27 @@ export default function TaskCreateScreen() {
 
           {/* Priority Selection */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Priority</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Priority</Text>
             <View style={styles.priorityRow}>
               {(["p1", "p2", "p3"] as PriorityLevel[]).map((p) => {
                 const isSelected = priority === p;
                 const color =
                   p === "p1"
-                    ? THEME_COLORS.semantic.priorityHigh
+                    ? semantic.priorityHigh
                     : p === "p2"
-                    ? THEME_COLORS.semantic.priorityMedium
-                    : THEME_COLORS.semantic.priorityLow;
+                    ? semantic.priorityMedium
+                    : semantic.priorityLow;
 
                 return (
                   <TouchableOpacity
                     key={p}
                     style={[
                       styles.priorityPill,
-                      isSelected && { borderColor: color, backgroundColor: `${color}15` },
+                      {
+                        backgroundColor: colors.bgSurfaceCard,
+                        borderColor: colors.borderDefault,
+                      },
+                      isSelected && { borderColor: color, backgroundColor: `${color}20` },
                     ]}
                     onPress={() => setPriority(p)}
                     activeOpacity={0.7}
@@ -152,7 +177,8 @@ export default function TaskCreateScreen() {
                     <Text
                       style={[
                         styles.priorityText,
-                        isSelected && { color: THEME_COLORS.light.textPrimary, fontWeight: "600" },
+                        { color: colors.textMuted },
+                        isSelected && { color: colors.textPrimary, fontWeight: "600" },
                       ]}
                     >
                       {p.toUpperCase()}
@@ -167,19 +193,26 @@ export default function TaskCreateScreen() {
           {courses.length > 0 && (
             <View style={styles.fieldGroup}>
               <View style={styles.labelWithIcon}>
-                <BookOpen size={16} color={THEME_COLORS.light.textMuted} />
-                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Course</Text>
+                <BookOpen size={16} color={colors.textMuted} />
+                <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Course</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.courseScroll}>
                 <TouchableOpacity
-                  style={[styles.coursePill, courseId === null && styles.coursePillActive]}
+                  style={[
+                    styles.coursePill,
+                    {
+                      backgroundColor: courseId === null ? colors.textPrimary : colors.bgSurfaceCard,
+                      borderColor: courseId === null ? colors.textPrimary : colors.borderDefault,
+                    },
+                  ]}
                   onPress={() => setCourseId(null)}
                   activeOpacity={0.7}
                 >
                   <Text
                     style={[
                       styles.coursePillText,
-                      courseId === null && styles.coursePillTextActive,
+                      { color: courseId === null ? colors.bgCanvas : colors.textPrimary },
+                      courseId === null && { fontWeight: "600" },
                     ]}
                   >
                     None
@@ -193,8 +226,10 @@ export default function TaskCreateScreen() {
                       key={course.id}
                       style={[
                         styles.coursePill,
-                        { borderColor: course.color },
-                        isSelected && { backgroundColor: `${course.color}20` },
+                        {
+                          backgroundColor: isSelected ? `${course.color}20` : colors.bgSurfaceCard,
+                          borderColor: course.color,
+                        },
                       ]}
                       onPress={() => setCourseId(course.id)}
                       activeOpacity={0.7}
@@ -203,7 +238,8 @@ export default function TaskCreateScreen() {
                       <Text
                         style={[
                           styles.coursePillText,
-                          isSelected && { color: THEME_COLORS.light.textPrimary, fontWeight: "600" },
+                          { color: colors.textPrimary },
+                          isSelected && { fontWeight: "600" },
                         ]}
                       >
                         {course.code}
@@ -218,23 +254,30 @@ export default function TaskCreateScreen() {
           {/* Due Date */}
           <View style={styles.fieldGroup}>
             <View style={styles.labelWithIcon}>
-              <Calendar size={16} color={THEME_COLORS.light.textMuted} />
-              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>Due Date (YYYY-MM-DD)</Text>
+              <Calendar size={16} color={colors.textMuted} />
+              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>Due Date (YYYY-MM-DD)</Text>
             </View>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.bgSurfaceCard,
+                  borderColor: colors.borderDefault,
+                  color: colors.textPrimary,
+                },
+              ]}
               value={dueDate}
               onChangeText={setDueDate}
               placeholder="YYYY-MM-DD"
-              placeholderTextColor={THEME_COLORS.light.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
           {/* Estimated Pomodoros */}
           <View style={styles.fieldGroup}>
             <View style={styles.labelWithIcon}>
-              <Clock size={16} color={THEME_COLORS.light.textMuted} />
-              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs }]}>
+              <Clock size={16} color={colors.textMuted} />
+              <Text style={[styles.fieldLabel, { marginLeft: SPACING.xs, color: colors.textPrimary }]}>
                 Estimated Pomodoros (25m sessions)
               </Text>
             </View>
@@ -244,7 +287,10 @@ export default function TaskCreateScreen() {
                   key={num}
                   style={[
                     styles.pomodoroBtn,
-                    estimatedPomodoros === num && styles.pomodoroBtnActive,
+                    {
+                      backgroundColor: estimatedPomodoros === num ? colors.textPrimary : colors.bgSurfaceCard,
+                      borderColor: estimatedPomodoros === num ? colors.textPrimary : colors.borderDefault,
+                    },
                   ]}
                   onPress={() => setEstimatedPomodoros(num)}
                   activeOpacity={0.7}
@@ -252,7 +298,8 @@ export default function TaskCreateScreen() {
                   <Text
                     style={[
                       styles.pomodoroBtnText,
-                      estimatedPomodoros === num && styles.pomodoroBtnTextActive,
+                      { color: estimatedPomodoros === num ? colors.bgCanvas : colors.textPrimary },
+                      estimatedPomodoros === num && { fontWeight: "600" },
                     ]}
                   >
                     {num}

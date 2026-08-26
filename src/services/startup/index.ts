@@ -2,6 +2,7 @@ import { initializeDatabase } from "../../db/client";
 import { PreferenceRepository } from "../../db/repositories/preference-repository";
 import { observability } from "../observability";
 import { logger } from "../../utils/logger";
+import { useUIStore } from "../../stores/ui-store";
 
 export interface StartupResult {
   coldStartDurationMs: number;
@@ -34,6 +35,14 @@ export class StartupManager {
       const repo = new PreferenceRepository(db);
       return await repo.getAll();
     });
+
+    if (
+      initialPreferences.themeMode === "dark" ||
+      initialPreferences.themeMode === "light" ||
+      initialPreferences.themeMode === "system"
+    ) {
+      useUIStore.getState().setThemePreference(initialPreferences.themeMode as any);
+    }
 
     const coldStartDurationMs = observability.stopTimer("cold_start_ms");
     logger.info("StartupManager", `Critical startup sequence completed in ${coldStartDurationMs}ms`);

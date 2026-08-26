@@ -1,13 +1,18 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Course } from "../../db/schema/courses";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING, getCourseAccentTint } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { CoursePill } from "../ui/badge";
 
 export interface CourseStatItem {
-  course: Course;
+  courseId: string;
+  courseCode: string;
+  courseName: string;
+  color: string;
   totalTasks: number;
   completedTasks: number;
+  progressPercent: number;
 }
 
 export interface SemesterStatusProps {
@@ -17,49 +22,50 @@ export interface SemesterStatusProps {
 export const SemesterStatus = memo(function SemesterStatus({
   courseStats,
 }: SemesterStatusProps) {
+  const { colors } = useTheme();
   if (courseStats.length === 0) return null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>SEMESTER COURSES</Text>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>SEMESTER COURSES</Text>
 
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+        ]}
+      >
         {courseStats.map((item, idx) => {
-          const percent =
-            item.totalTasks > 0
-              ? Math.round((item.completedTasks / item.totalTasks) * 100)
-              : 0;
-
           return (
             <View
-              key={item.course.id}
+              key={item.courseId}
               style={[
                 styles.courseRow,
-                idx > 0 && styles.courseRowBorder,
+                idx > 0 && [styles.courseRowBorder, { borderTopColor: colors.borderSubtle }],
               ]}
             >
               <View style={styles.courseInfo}>
                 <CoursePill
-                  courseCode={item.course.code}
-                  courseColor={item.course.color}
+                  courseCode={item.courseCode}
+                  courseColor={item.color}
                   size="sm"
                 />
-                <Text style={styles.courseName} numberOfLines={1}>
-                  {item.course.name}
+                <Text style={[styles.courseName, { color: colors.textPrimary }]} numberOfLines={1}>
+                  {item.courseName}
                 </Text>
               </View>
 
               <View style={styles.progressContainer}>
-                <Text style={styles.taskCount}>
+                <Text style={[styles.taskCount, { color: colors.textMuted }]}>
                   {item.completedTasks}/{item.totalTasks}
                 </Text>
-                <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarBg, { backgroundColor: colors.bgSurfaceElevated }]}>
                   <View
                     style={[
                       styles.progressBarFill,
                       {
-                        width: `${percent}%`,
-                        backgroundColor: item.course.color,
+                        width: `${item.progressPercent}%`,
+                        backgroundColor: item.color,
                       },
                     ]}
                   />
@@ -82,14 +88,11 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 11,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
     letterSpacing: 0.8,
     marginBottom: SPACING.sm,
   },
   card: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     paddingHorizontal: SPACING.md,
   },
@@ -101,7 +104,6 @@ const styles = StyleSheet.create({
   },
   courseRowBorder: {
     borderTopWidth: 1,
-    borderTopColor: THEME_COLORS.light.borderSubtle,
   },
   courseInfo: {
     flexDirection: "row",
@@ -112,7 +114,6 @@ const styles = StyleSheet.create({
   courseName: {
     ...TYPOGRAPHY.body,
     fontSize: 14,
-    color: THEME_COLORS.light.textPrimary,
     marginLeft: SPACING.sm,
     flexShrink: 1,
   },
@@ -123,14 +124,12 @@ const styles = StyleSheet.create({
   taskCount: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textMuted,
     marginBottom: 4,
   },
   progressBarBg: {
     width: "100%",
     height: 4,
     borderRadius: 2,
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     overflow: "hidden",
   },
   progressBarFill: {

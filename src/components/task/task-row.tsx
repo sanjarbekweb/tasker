@@ -14,6 +14,8 @@ import { Course } from "../../db/schema/courses";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING, getCourseAccentTint } from "../../constants/theme";
 import { PriorityBadge, CoursePill } from "../ui/badge";
 
+import { useTheme } from "../../hooks/use-theme";
+
 export interface TaskRowProps {
   task: Task;
   course?: Course | null;
@@ -35,6 +37,7 @@ export const TaskRow = memo(function TaskRow({
   onLongPress,
   style,
 }: TaskRowProps) {
+  const { colors, semantic } = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
@@ -45,8 +48,8 @@ export const TaskRow = memo(function TaskRow({
       // Task completion animation: scale -> spring -> fade
       Animated.sequence([
         Animated.timing(scaleAnim, {
-          toValue: 0.85,
-          duration: 70,
+          toValue: 0.95,
+          duration: 80,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
@@ -68,13 +71,15 @@ export const TaskRow = memo(function TaskRow({
   };
 
   const isCompleted = task.isCompleted;
-  const courseAccentColor = course?.color ?? THEME_COLORS.semantic.eventClass;
+  const courseAccentColor = course?.color ?? semantic.eventClass;
 
   return (
     <Animated.View
       style={[
         styles.container,
         {
+          backgroundColor: colors.bgSurfaceCard,
+          borderColor: colors.borderDefault,
           transform: [{ scale: scaleAnim }],
           opacity: opacityAnim,
         },
@@ -89,7 +94,14 @@ export const TaskRow = memo(function TaskRow({
       >
         {/* Checkbox */}
         <TouchableOpacity
-          style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}
+          style={[
+            styles.checkbox,
+            { borderColor: colors.borderDefault },
+            isCompleted && {
+              backgroundColor: semantic.stateSuccess,
+              borderColor: semantic.stateSuccess,
+            },
+          ]}
           onPress={handleToggle}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           activeOpacity={0.8}
@@ -102,7 +114,8 @@ export const TaskRow = memo(function TaskRow({
           <Text
             style={[
               styles.title,
-              isCompleted && styles.titleCompleted,
+              { color: colors.textPrimary },
+              isCompleted && [styles.titleCompleted, { color: colors.textMuted }],
             ]}
             numberOfLines={2}
           >
@@ -125,25 +138,28 @@ export const TaskRow = memo(function TaskRow({
             )}
 
             {task.estimatedPomodoros && task.estimatedPomodoros > 0 ? (
-              <View style={styles.pomodoroBadge}>
-                <Clock size={11} color={THEME_COLORS.light.textMuted} />
-                <Text style={styles.pomodoroText}>
+              <View style={[styles.pomodoroBadge, { backgroundColor: colors.bgSurfaceElevated }]}>
+                <Clock size={11} color={colors.textMuted} />
+                <Text style={[styles.pomodoroText, { color: colors.textMuted }]}>
                   {task.completedPomodoros}/{task.estimatedPomodoros}
                 </Text>
               </View>
             ) : null}
 
             {subtaskCount > 0 && (
-              <View style={styles.pomodoroBadge}>
-                <ListChecks size={11} color={THEME_COLORS.light.textMuted} />
-                <Text style={styles.pomodoroText}>
+              <View style={[styles.pomodoroBadge, { backgroundColor: colors.bgSurfaceElevated }]}>
+                <ListChecks size={11} color={colors.textMuted} />
+                <Text style={[styles.pomodoroText, { color: colors.textMuted }]}>
                   {completedSubtaskCount}/{subtaskCount}
                 </Text>
               </View>
             )}
 
             {task.timeBlockStart && (
-              <Text style={styles.timeText}>{task.timeBlockStart}</Text>
+              <Text style={[styles.timeText, { color: colors.textMuted }]}>
+                {task.timeBlockStart}
+                {task.timeBlockEnd ? ` - ${task.timeBlockEnd}` : ""}
+              </Text>
             )}
           </View>
         </View>
@@ -154,9 +170,7 @@ export const TaskRow = memo(function TaskRow({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
@@ -172,15 +186,10 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: BORDER_RADIUS.md,
     borderWidth: 2,
-    borderColor: THEME_COLORS.light.borderDefault,
     alignItems: "center",
     justifyContent: "center",
     marginRight: SPACING.md,
     marginTop: 2,
-  },
-  checkboxCompleted: {
-    backgroundColor: THEME_COLORS.semantic.stateSuccess,
-    borderColor: THEME_COLORS.semantic.stateSuccess,
   },
   detailsContainer: {
     flex: 1,
@@ -188,12 +197,10 @@ const styles = StyleSheet.create({
   title: {
     ...TYPOGRAPHY.body,
     fontWeight: "500",
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: SPACING.xs,
   },
   titleCompleted: {
     textDecorationLine: "line-through",
-    color: THEME_COLORS.light.textMuted,
   },
   metaRow: {
     flexDirection: "row",
@@ -208,7 +215,6 @@ const styles = StyleSheet.create({
   pomodoroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     paddingHorizontal: SPACING.xs + 2,
     paddingVertical: 2,
     borderRadius: BORDER_RADIUS.sm,
@@ -218,13 +224,11 @@ const styles = StyleSheet.create({
   pomodoroText: {
     ...TYPOGRAPHY.caption,
     fontSize: 10,
-    color: THEME_COLORS.light.textMuted,
     marginLeft: 3,
   },
   timeText: {
     ...TYPOGRAPHY.caption,
     fontSize: 11,
-    color: THEME_COLORS.light.textMuted,
     marginVertical: 2,
   },
 });

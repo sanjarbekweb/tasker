@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { CheckCircle2, Clock, Award, Target } from "lucide-react-native";
 
 export interface MetricsGridProps {
@@ -16,6 +17,7 @@ export const MetricsGrid = memo(function MetricsGrid({
   longestStreak,
   completionRatePercent,
 }: MetricsGridProps) {
+  const { colors, semantic } = useTheme();
   const focusHours = (totalFocusMinutes / 60).toFixed(1);
 
   const metrics = [
@@ -23,25 +25,25 @@ export const MetricsGrid = memo(function MetricsGrid({
       label: "COMPLETED TASKS",
       value: completedTasks.toString(),
       icon: CheckCircle2,
-      color: THEME_COLORS.semantic.stateSuccess,
+      color: semantic.stateSuccess,
     },
     {
       label: "TOTAL FOCUS",
       value: `${focusHours}h`,
       icon: Clock,
-      color: THEME_COLORS.semantic.focusAccent,
+      color: semantic.focusAccent,
     },
     {
       label: "LONGEST STREAK",
       value: `${longestStreak} d`,
       icon: Award,
-      color: THEME_COLORS.semantic.gamifyStreak,
+      color: semantic.gamifyStreak,
     },
     {
       label: "COMPLETION RATE",
       value: `${Math.round(completionRatePercent)}%`,
       icon: Target,
-      color: THEME_COLORS.semantic.priorityLow,
+      color: semantic.priorityLow,
     },
   ];
 
@@ -50,12 +52,18 @@ export const MetricsGrid = memo(function MetricsGrid({
       {metrics.map((m, idx) => {
         const IconComp = m.icon;
         return (
-          <View key={idx} style={styles.metricCard}>
+          <View
+            key={idx}
+            style={[
+              styles.metricCard,
+              { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+            ]}
+          >
             <View style={styles.cardHeader}>
-              <Text style={styles.label}>{m.label}</Text>
+              <Text style={[styles.label, { color: colors.textMuted }]}>{m.label}</Text>
               <IconComp size={16} color={m.color} />
             </View>
-            <Text style={styles.value}>{m.value}</Text>
+            <Text style={[styles.value, { color: colors.textPrimary }]}>{m.value}</Text>
           </View>
         );
       })}
@@ -72,9 +80,7 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: "48%",
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     padding: SPACING.md,
     marginBottom: SPACING.md,
@@ -89,13 +95,11 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
     letterSpacing: 0.5,
   },
   value: {
     ...TYPOGRAPHY.heading,
     fontSize: 22,
     fontWeight: "700",
-    color: THEME_COLORS.light.textPrimary,
   },
 });

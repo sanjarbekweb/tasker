@@ -1,16 +1,23 @@
 import React from "react";
 import { View, StyleSheet, ViewProps } from "react-native";
-import { THEME_COLORS, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 
 export interface CardProps extends ViewProps {
   elevated?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({ style, elevated, children, ...props }) => {
+  const { colors } = useTheme();
+
   return (
     <View
       style={[
         styles.card,
+        {
+          backgroundColor: colors.bgSurfaceCard,
+          borderColor: colors.borderDefault,
+        },
         elevated && styles.elevated,
         style,
       ]}
@@ -23,9 +30,7 @@ export const Card: React.FC<CardProps> = ({ style, elevated, children, ...props 
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     padding: SPACING.lg,
   },

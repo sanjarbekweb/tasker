@@ -13,6 +13,7 @@ import { getDatabase } from "../../db/client";
 import { PreferenceRepository } from "../../db/repositories/preference-repository";
 import { useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
@@ -21,8 +22,10 @@ type ThemeOption = "light" | "dark" | "system";
 export default function AppearanceSettingsScreen() {
   const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
+  const setThemePreference = useUIStore((s) => s.setThemePreference);
+  const { colors, isDark } = useTheme();
 
-  const [selectedTheme, setSelectedTheme] = useState<ThemeOption>("light");
+  const [selectedTheme, setSelectedTheme] = useState<ThemeOption>("system");
 
   useEffect(() => {
     async function loadTheme() {
@@ -32,17 +35,19 @@ export default function AppearanceSettingsScreen() {
         const saved = await repo.get("themeMode");
         if (saved === "dark" || saved === "system" || saved === "light") {
           setSelectedTheme(saved as ThemeOption);
+          setThemePreference(saved as ThemeOption);
         }
       } catch (err) {
         logger.error("AppearanceSettings", "Failed to load theme preference", err);
       }
     }
     loadTheme();
-  }, []);
+  }, [setThemePreference]);
 
   const handleSelectTheme = async (theme: ThemeOption) => {
     try {
       setSelectedTheme(theme);
+      setThemePreference(theme);
       const db = getDatabase();
       const repo = new PreferenceRepository(db);
       await repo.set("themeMode", theme);
@@ -76,39 +81,43 @@ export default function AppearanceSettingsScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Appearance Settings Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} activeOpacity={0.7}>
-            <ArrowLeft size={22} color={THEME_COLORS.light.textPrimary} />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Appearance</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Appearance</Text>
           <View style={{ width: 24 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <Text style={styles.sectionTitle}>Theme Mode</Text>
-          <View style={styles.cardGroup}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Theme Mode</Text>
+          <View style={[styles.cardGroup, { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault }]}>
             {options.map((opt) => {
               const isSelected = selectedTheme === opt.id;
               const Icon = opt.icon;
               return (
                 <TouchableOpacity
                   key={opt.id}
-                  style={[styles.optionRow, isSelected && styles.optionRowActive]}
+                  style={[
+                    styles.optionRow,
+                    { borderBottomColor: colors.borderDefault },
+                    isSelected && { backgroundColor: `${colors.textPrimary}10` },
+                  ]}
                   onPress={() => handleSelectTheme(opt.id)}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.iconBox}>
-                    <Icon size={20} color={THEME_COLORS.light.textPrimary} />
+                  <View style={[styles.iconBox, { backgroundColor: colors.bgSurfaceElevated }]}>
+                    <Icon size={20} color={colors.textPrimary} />
                   </View>
                   <View style={styles.textBox}>
-                    <Text style={styles.optionLabel}>{opt.label}</Text>
-                    <Text style={styles.optionDesc}>{opt.desc}</Text>
+                    <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{opt.label}</Text>
+                    <Text style={[styles.optionDesc, { color: colors.textMuted }]}>{opt.desc}</Text>
                   </View>
                   {isSelected && (
-                    <View style={styles.checkCircle}>
-                      <Check size={16} color="#FFFFFF" />
+                    <View style={[styles.checkCircle, { backgroundColor: colors.textPrimary }]}>
+                      <Check size={16} color={colors.bgCanvas} />
                     </View>
                   )}
                 </TouchableOpacity>
@@ -116,9 +125,9 @@ export default function AppearanceSettingsScreen() {
             })}
           </View>
 
-          <View style={styles.philosophyBox}>
-            <Text style={styles.philosophyTitle}>Monochrome Shell Rule</Text>
-            <Text style={styles.philosophyText}>
+          <View style={[styles.philosophyBox, { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault }]}>
+            <Text style={[styles.philosophyTitle, { color: colors.textPrimary }]}>Monochrome Shell Rule</Text>
+            <Text style={[styles.philosophyText, { color: colors.textMuted }]}>
               Numo strictly maintains a neutral monochrome surface. Color is reserved exclusively for priority levels, event categories, and ~10% course background tints.
             </Text>
           </View>
@@ -131,7 +140,6 @@ export default function AppearanceSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   header: {
     flexDirection: "row",
@@ -140,14 +148,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: THEME_COLORS.light.borderDefault,
   },
   iconBtn: {
     padding: SPACING.xs,
   },
   headerTitle: {
     ...TYPOGRAPHY.heading,
-    color: THEME_COLORS.light.textPrimary,
   },
   scrollContent: {
     padding: SPACING.lg,
@@ -155,14 +161,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...TYPOGRAPHY.heading,
     fontSize: 16,
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: SPACING.md,
   },
   cardGroup: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     overflow: "hidden",
   },
   optionRow: {
@@ -170,16 +173,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: SPACING.lg,
     borderBottomWidth: 1,
-    borderBottomColor: THEME_COLORS.light.borderDefault,
-  },
-  optionRowActive: {
-    backgroundColor: `${THEME_COLORS.light.textPrimary}05`,
   },
   iconBox: {
     width: 40,
     height: 40,
     borderRadius: BORDER_RADIUS.xl,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
     alignItems: "center",
     justifyContent: "center",
     marginRight: SPACING.md,
@@ -190,11 +188,9 @@ const styles = StyleSheet.create({
   optionLabel: {
     ...TYPOGRAPHY.body,
     fontWeight: "600",
-    color: THEME_COLORS.light.textPrimary,
   },
   optionDesc: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     marginTop: 2,
     fontSize: 12,
   },
@@ -202,27 +198,22 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: THEME_COLORS.light.textPrimary,
     alignItems: "center",
     justifyContent: "center",
   },
   philosophyBox: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: THEME_COLORS.light.borderDefault,
     marginTop: SPACING.xl,
   },
   philosophyTitle: {
     ...TYPOGRAPHY.caption,
     fontWeight: "600",
-    color: THEME_COLORS.light.textPrimary,
     marginBottom: SPACING.xs,
   },
   philosophyText: {
     ...TYPOGRAPHY.caption,
-    color: THEME_COLORS.light.textMuted,
     fontSize: 12,
     lineHeight: 18,
   },

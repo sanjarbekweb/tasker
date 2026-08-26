@@ -2,7 +2,8 @@ import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Task } from "../../db/schema/tasks";
 import { Course } from "../../db/schema/courses";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { CoursePill } from "../ui/badge";
 import { Target, CheckCircle2, ChevronRight } from "lucide-react-native";
 
@@ -19,21 +20,26 @@ export const TaskContext = memo(function TaskContext({
   onSelectTask,
   onCompleteTask,
 }: TaskContextProps) {
+  const { colors, semantic } = useTheme();
+
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[
+        styles.card,
+        { backgroundColor: colors.bgSurfaceCard, borderColor: colors.borderDefault },
+      ]}
       onPress={onSelectTask}
       activeOpacity={0.7}
     >
-      <View style={styles.iconBox}>
-        <Target size={18} color={THEME_COLORS.semantic.focusAccent} />
+      <View style={[styles.iconBox, { backgroundColor: colors.bgSurfaceElevated }]}>
+        <Target size={18} color={semantic.focusAccent} />
       </View>
 
       <View style={styles.textContainer}>
-        <Text style={styles.headerLabel}>ACTIVE TASK</Text>
+        <Text style={[styles.headerLabel, { color: colors.textMuted }]}>ACTIVE TASK</Text>
         {activeTask ? (
           <View style={styles.taskInfoRow}>
-            <Text style={styles.taskTitle} numberOfLines={1}>
+            <Text style={[styles.taskTitle, { color: colors.textPrimary }]} numberOfLines={1}>
               {activeTask.title}
             </Text>
             {course && (
@@ -46,7 +52,7 @@ export const TaskContext = memo(function TaskContext({
             )}
           </View>
         ) : (
-          <Text style={styles.placeholderText}>Tap to select a task to focus on</Text>
+          <Text style={[styles.placeholderText, { color: colors.textMuted }]}>Tap to select a task to focus on</Text>
         )}
       </View>
 
@@ -56,10 +62,10 @@ export const TaskContext = memo(function TaskContext({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={styles.checkBtn}
         >
-          <CheckCircle2 size={20} color={THEME_COLORS.semantic.stateSuccess} />
+          <CheckCircle2 size={20} color={semantic.stateSuccess} />
         </TouchableOpacity>
       ) : (
-        <ChevronRight size={18} color={THEME_COLORS.light.textMuted} />
+        <ChevronRight size={18} color={colors.textMuted} />
       )}
     </TouchableOpacity>
   );
@@ -69,9 +75,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS["2xl"],
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
     padding: SPACING.md,
     marginHorizontal: SPACING.xl,
@@ -81,7 +85,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: BORDER_RADIUS.xl,
-    backgroundColor: THEME_COLORS.light.borderSubtle,
     alignItems: "center",
     justifyContent: "center",
     marginRight: SPACING.md,
@@ -93,7 +96,6 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: "700",
-    color: THEME_COLORS.light.textMuted,
     letterSpacing: 0.8,
   },
   taskInfoRow: {
@@ -104,13 +106,11 @@ const styles = StyleSheet.create({
   taskTitle: {
     ...TYPOGRAPHY.body,
     fontWeight: "600",
-    color: THEME_COLORS.light.textPrimary,
     flexShrink: 1,
   },
   placeholderText: {
     ...TYPOGRAPHY.body,
     fontSize: 14,
-    color: THEME_COLORS.light.textMuted,
     marginTop: 2,
   },
   checkBtn: {

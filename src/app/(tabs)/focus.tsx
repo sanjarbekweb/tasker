@@ -14,7 +14,8 @@ import { Timer } from "../../components/focus/timer";
 import { ModeSelector } from "../../components/focus/mode-selector";
 import { TaskContext } from "../../components/focus/task-context";
 import { FocusControls } from "../../components/focus/focus-controls";
-import { THEME_COLORS, TYPOGRAPHY, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
@@ -26,6 +27,7 @@ export default function FocusScreen() {
   const progress = useFocusStore((s) => s.progress);
   const setMode = useFocusStore((s) => s.setMode);
   const addToast = useUIStore((s) => s.addToast);
+  const { colors } = useTheme();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
@@ -141,12 +143,12 @@ export default function FocusScreen() {
 
   return (
     <ErrorBoundary fallbackTitle="Focus View Error">
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bgCanvas }]}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Focus Engine</Text>
-            <Text style={styles.headerSubtitle}>Timestamp-driven deep work timer</Text>
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Focus Engine</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>Timestamp-driven deep work timer</Text>
           </View>
 
           {/* Active Task Context */}
@@ -189,7 +191,6 @@ export default function FocusScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME_COLORS.light.bgCanvas,
   },
   scrollContent: {
     paddingBottom: SPACING["4xl"],
@@ -202,11 +203,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...TYPOGRAPHY.display,
     fontSize: 26,
-    color: THEME_COLORS.light.textPrimary,
   },
   headerSubtitle: {
     ...TYPOGRAPHY.caption,
     fontSize: 12,
-    color: THEME_COLORS.light.textMuted,
   },
 });

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING, getCourseAccentTint } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { Flame } from "lucide-react-native";
 
 export interface HeroProps {
@@ -12,22 +13,32 @@ export const Hero = memo(function Hero({
   name = "Student",
   currentStreak = 0,
 }: HeroProps) {
+  const { colors, semantic, getCourseAccentTint } = useTheme();
+
   return (
     <View style={styles.container}>
       <View style={styles.textColumn}>
-        <Text style={styles.greeting}>Welcome back,</Text>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={[styles.greeting, { color: colors.textMuted }]}>Welcome back,</Text>
+        <Text style={[styles.name, { color: colors.textPrimary }]}>{name}</Text>
       </View>
 
-      <View style={styles.streakCard}>
+      <View
+        style={[
+          styles.streakCard,
+          {
+            backgroundColor: getCourseAccentTint(semantic.gamifyStreak, 0.12),
+            borderColor: getCourseAccentTint(semantic.gamifyStreak, 0.25),
+          },
+        ]}
+      >
         <Flame
           size={24}
-          color={currentStreak > 0 ? THEME_COLORS.semantic.gamifyStreak : THEME_COLORS.light.textMuted}
-          fill={currentStreak > 0 ? THEME_COLORS.semantic.gamifyStreak : "transparent"}
+          color={currentStreak > 0 ? semantic.gamifyStreak : colors.textMuted}
+          fill={currentStreak > 0 ? semantic.gamifyStreak : "transparent"}
         />
         <View style={styles.streakTextCol}>
-          <Text style={styles.streakCount}>{currentStreak}</Text>
-          <Text style={styles.streakLabel}>DAY STREAK</Text>
+          <Text style={[styles.streakCount, { color: semantic.gamifyStreak }]}>{currentStreak}</Text>
+          <Text style={[styles.streakLabel, { color: semantic.gamifyStreak }]}>DAY STREAK</Text>
         </View>
       </View>
     </View>
@@ -48,19 +59,15 @@ const styles = StyleSheet.create({
   greeting: {
     ...TYPOGRAPHY.caption,
     fontSize: 13,
-    color: THEME_COLORS.light.textMuted,
   },
   name: {
     ...TYPOGRAPHY.display,
     fontSize: 24,
     lineHeight: 30,
-    color: THEME_COLORS.light.textPrimary,
   },
   streakCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: getCourseAccentTint(THEME_COLORS.semantic.gamifyStreak, 0.12),
-    borderColor: getCourseAccentTint(THEME_COLORS.semantic.gamifyStreak, 0.25),
     borderWidth: 1,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
@@ -74,14 +81,12 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.body,
     fontWeight: "700",
     fontSize: 16,
-    color: THEME_COLORS.semantic.gamifyStreak,
     lineHeight: 18,
   },
   streakLabel: {
     ...TYPOGRAPHY.caption,
     fontSize: 9,
     fontWeight: "700",
-    color: THEME_COLORS.semantic.gamifyStreak,
     letterSpacing: 0.5,
   },
 });
