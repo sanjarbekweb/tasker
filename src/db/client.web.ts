@@ -1,10 +1,10 @@
-import { drizzle } from "drizzle-orm/libsql";
-import { createClient, Client } from "@libsql/client/web";
+import initSqlJs, { Database } from "sql.js";
+import { drizzle } from "drizzle-orm/sql-js";
 import * as schema from "./schema";
 import { runMigrations, SqliteRawExecutor } from "./migrations/migrator";
 import { DatabaseError } from "./errors";
 
-export type AppDatabase = ReturnType<typeof drizzle<typeof schema>>;
+export type AppDatabase = any;
 
 export interface DatabaseConfig {
   dbName?: string;
@@ -12,7 +12,7 @@ export interface DatabaseConfig {
 }
 
 let dbInstance: AppDatabase | null = null;
-let rawClientInstance: Client | null = null;
+let rawClientInstance: Database | null = null;
 
 export function getDatabaseInstance(): AppDatabase {
   if (!dbInstance) {
@@ -29,25 +29,36 @@ export async function initializeDatabase(config: DatabaseConfig = {}): Promise<A
       return dbInstance;
     }
 
-    // In web environment, use in-memory Web SQL client
-    const rawClient = createClient({ url: ":memory:" });
+    const SQL = await initSqlJs({
+      locateFile: (file: string) => `https://sql.js.org/dist/${file}`,
+    });
+
+    const rawClient = new SQL.Database();
 
     const executor: SqliteRawExecutor = {
       async exec(sql: string) {
-        await rawClient.executeMultiple(sql);
+        rawClient.run(sql);
       },
       async all<T = unknown>(sql: string) {
-        const res = await rawClient.execute(sql);
-        return res.rows as unknown as T[];
+        const res = rawClient.exec(sql);
+        if (!res || res.length === 0 || !res[0]) return [];
+        const { columns, values } = res[0];
+        return values.map((row) => {
+          const obj: Record<string, unknown> = {};
+          columns.forEach((col, idx) => {
+            obj[col] = row[idx];
+          });
+          return obj as unknown as T;
+        });
       },
       async run(sql: string, params: unknown[] = []) {
-        await rawClient.execute({ sql, args: (params ?? []) as any });
+        rawClient.run(sql, (params ?? []) as any[]);
       },
     };
 
     await runMigrations(executor);
 
-    dbInstance = drizzle(rawClient, { schema });
+    dbInstance = drizzle(rawClient, { schema }) as any;
     rawClientInstance = rawClient;
     return dbInstance;
   } catch (error) {
@@ -60,7 +71,11 @@ export async function initializeDatabase(config: DatabaseConfig = {}): Promise<A
 
 export function closeDatabase(): void {
   if (rawClientInstance) {
-    rawClientInstance.close();
+    try {
+      rawClientInstance.close();
+    } catch {
+      // ignore
+    }
     rawClientInstance = null;
     dbInstance = null;
   }

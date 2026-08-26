@@ -255,6 +255,10 @@ export class TaskRepository {
     }
   }
 
+  async delete(id: string): Promise<void> {
+    return this.softDelete(id);
+  }
+
   /**
    * Returns distinct ISO dates (YYYY-MM-DD) on which tasks were completed.
    */

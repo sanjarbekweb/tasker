@@ -196,6 +196,10 @@ export class EventRepository {
     }
   }
 
+  async delete(id: string): Promise<void> {
+    return this.softDelete(id);
+  }
+
   async softDeleteSeries(seriesId: string): Promise<void> {
     try {
       await this.db
@@ -208,5 +212,9 @@ export class EventRepository {
     } catch (error) {
       throw new DatabaseError(`Database error soft-deleting series ${seriesId}`, error);
     }
+  }
+
+  async deleteSeries(seriesId: string): Promise<void> {
+    return this.softDeleteSeries(seriesId);
   }
 }

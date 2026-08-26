@@ -142,4 +142,8 @@ export class CourseRepository {
       throw new DatabaseError(`Database error soft-deleting course ${id}`, error);
     }
   }
+
+  async delete(id: string): Promise<void> {
+    return this.softDelete(id);
+  }
 }

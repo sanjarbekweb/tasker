@@ -4,10 +4,12 @@ import { DailySchedule, ScheduledItem, FreeGap } from "../../domain/scheduling";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 import { Clock, AlertTriangle } from "lucide-react-native";
 import { TimeGapRow } from "../task/time-gap-row";
+import { TouchableOpacity } from "react-native";
 
 export interface TimelineScheduleProps {
   schedule: DailySchedule;
   onScheduleInGap?: (gap: FreeGap) => void;
+  onPressItem?: (item: ScheduledItem) => void;
 }
 
 function formatTimestamp(timestamp: number): string {
@@ -27,6 +29,7 @@ function timestampToMinutes(timestamp: number): number {
 export const TimelineSchedule = memo(function TimelineSchedule({
   schedule,
   onScheduleInGap,
+  onPressItem,
 }: TimelineScheduleProps) {
   const { items, collisions, freeGaps } = schedule;
 
@@ -67,12 +70,14 @@ export const TimelineSchedule = memo(function TimelineSchedule({
                   <Text style={styles.timeEnd}>{formatTimestamp(item.endTime)}</Text>
                 </View>
 
-                <View
+                <TouchableOpacity
                   style={[
                     styles.itemCard,
                     isEvent ? styles.eventCard : styles.taskCard,
                     hasCollision && styles.itemCardCollision,
                   ]}
+                  onPress={() => onPressItem?.(item)}
+                  activeOpacity={0.7}
                 >
                   <View style={styles.itemHeader}>
                     <Text style={styles.itemTitle} numberOfLines={1}>
@@ -85,7 +90,7 @@ export const TimelineSchedule = memo(function TimelineSchedule({
                   <Text style={styles.durationText}>
                     {durationMins} mins
                   </Text>
-                </View>
+                </TouchableOpacity>
               </View>
             );
           })}

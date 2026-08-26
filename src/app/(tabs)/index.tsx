@@ -23,6 +23,7 @@ import { TaskRepository } from "../../db/repositories/task-repository";
 import { CourseRepository } from "../../db/repositories/course-repository";
 import { getDatabase } from "../../db/client";
 import { draftToCreateTaskInput, parseQuickAdd } from "../../domain/quick-add";
+import { useRouter } from "expo-router";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
@@ -31,6 +32,7 @@ type ListItem =
   | { type: "gap"; data: { startMinutes: number; endMinutes: number; durationMinutes: number } };
 
 export default function TasksScreen() {
+  const router = useRouter();
   const selectedDate = useTaskStore((s) => s.selectedDate);
   const setSelectedDate = useTaskStore((s) => s.setSelectedDate);
   const activeFilter = useTaskStore((s) => s.activeFilter);
@@ -198,11 +200,12 @@ export default function TasksScreen() {
           task={task}
           course={course}
           onToggleComplete={handleToggleComplete}
+          onPress={(t) => router.push(`/task/${t.id}` as any)}
           onLongPress={() => openReschedule(task.id)}
         />
       );
     },
-    [courseMap, handleToggleComplete, openQuickAdd, openReschedule]
+    [courseMap, handleToggleComplete, openQuickAdd, openReschedule, router]
   );
 
   return (

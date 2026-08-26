@@ -132,6 +132,14 @@ export class SubtaskRepository {
     }
   }
 
+  async listByTaskId(taskId: string): Promise<Subtask[]> {
+    return this.listByTask(taskId);
+  }
+
+  async toggleComplete(id: string, isCompleted: boolean): Promise<Subtask> {
+    return this.update(id, { isCompleted });
+  }
+
   async softDelete(id: string): Promise<void> {
     const existing = await this.findById(id);
     if (!existing) {
@@ -149,5 +157,9 @@ export class SubtaskRepository {
     } catch (error) {
       throw new DatabaseError(`Database error soft-deleting subtask ${id}`, error);
     }
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.softDelete(id);
   }
 }

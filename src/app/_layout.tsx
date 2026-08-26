@@ -41,6 +41,8 @@ export default function RootLayout() {
           <StatusBar barStyle="dark-content" backgroundColor={THEME_COLORS.light.bgCanvas} />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal/quick-add" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
+            <Stack.Screen name="modal/reschedule" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
           </Stack>
           <ToastContainer />
         </ErrorBoundary>

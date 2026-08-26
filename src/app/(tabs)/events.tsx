@@ -22,10 +22,12 @@ import { CourseRepository } from "../../db/repositories/course-repository";
 import { TaskRepository } from "../../db/repositories/task-repository";
 import { getDatabase } from "../../db/client";
 import { buildDailySchedule, parseDateAndTimeToTimestamp, DailySchedule } from "../../domain/scheduling";
+import { useRouter } from "expo-router";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
 import { logger } from "../../utils/logger";
 
 export default function EventsScreen() {
+  const router = useRouter();
   const selectedDate = useTaskStore((s) => s.selectedDate);
   const setSelectedDate = useTaskStore((s) => s.setSelectedDate);
   const addToast = useUIStore((s) => s.addToast);
@@ -121,6 +123,13 @@ export default function EventsScreen() {
           <TimelineSchedule
             schedule={dailySchedule}
             onScheduleInGap={() => setIsModalOpen(true)}
+            onPressItem={(item) => {
+              if (item.type === "event") {
+                router.push(`/event/${item.id}` as any);
+              } else {
+                router.push(`/task/${item.id}` as any);
+              }
+            }}
           />
         </ScrollView>
 

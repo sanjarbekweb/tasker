@@ -185,9 +185,9 @@ export function parsePriorityToken(token: string): "p1" | "p2" | "p3" | "p4" | n
 }
 
 export function parsePomodoroToken(token: string): number | null {
-  const lower = token.toLowerCase().replace(/[[\]]/g, "").trim();
+  const lower = token.toLowerCase().replace(/[[\]~]/g, "").trim();
 
-  // e.g. 2p, 3pomos, 4pomodoros
+  // e.g. 2p, 3pomos, 4pomodoros, ~3p
   const match = /^(\d+)\s*(?:p|pomos?|pomodoros?)$/.exec(lower);
   if (match && match[1]) {
     const count = parseInt(match[1], 10);

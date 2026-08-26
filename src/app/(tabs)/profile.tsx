@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { useUIStore } from "../../stores/ui-store";
 import { getDatabase } from "../../db/client";
 import { TaskRepository } from "../../db/repositories/task-repository";
@@ -16,11 +16,14 @@ import { SettingsList } from "../../components/profile/settings-list";
 import { Task } from "../../db/schema/tasks";
 import { Course } from "../../db/schema/courses";
 import { FocusSession } from "../../db/schema/focus-sessions";
-import { THEME_COLORS, TYPOGRAPHY, SPACING } from "../../constants/theme";
+import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 import { ErrorBoundary } from "../../components/ui/error-boundary";
+import { useRouter } from "expo-router";
+import { Settings } from "lucide-react-native";
 import { logger } from "../../utils/logger";
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const addToast = useUIStore((s) => s.addToast);
 
   const [preferences, setPreferences] = useState<Record<string, string>>({});
@@ -183,6 +186,17 @@ export default function ProfileScreen() {
             onExportBackup={handleExportBackup}
             onImportBackup={handleImportBackup}
           />
+
+          <View style={styles.moreSettingsContainer}>
+            <TouchableOpacity
+              style={styles.moreSettingsBtn}
+              onPress={() => router.push("/settings" as any)}
+              activeOpacity={0.8}
+            >
+              <Settings size={18} color="#FFFFFF" />
+              <Text style={styles.moreSettingsText}>Advanced Settings & Data</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ErrorBoundary>
@@ -196,5 +210,24 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: SPACING["4xl"],
+  },
+  moreSettingsContainer: {
+    paddingHorizontal: SPACING.lg,
+    marginTop: -SPACING.xl,
+    marginBottom: SPACING.xl,
+  },
+  moreSettingsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: THEME_COLORS.light.textPrimary,
+    paddingVertical: SPACING.md,
+    borderRadius: BORDER_RADIUS.full,
+    gap: SPACING.xs,
+  },
+  moreSettingsText: {
+    ...TYPOGRAPHY.body,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
 });

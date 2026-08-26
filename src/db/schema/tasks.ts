@@ -3,6 +3,7 @@ import { courses } from "./courses";
 
 export const priorityEnum = ["p1", "p2", "p3", "p4"] as const;
 export type Priority = (typeof priorityEnum)[number];
+export type PriorityLevel = Priority;
 
 export const tasks = sqliteTable(
   "tasks",

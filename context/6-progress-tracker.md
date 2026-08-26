@@ -69,13 +69,19 @@ Update this file after every meaningful implementation change.
   - Trimmed Startup Path & Launch Hardening (`src/services/startup/index.ts`, `src/app/_layout.tsx`):
     - Critical launch sequence strictly constrained to SQLite init -> migration execution -> minimal preference read -> immediate Tasks paint.
     - Deferred non-critical background jobs scheduled asynchronously.
+  - Complete Sub-Routes & Feature Screens (`src/app/`):
+    - Task Creator (`src/app/task/create.tsx`) and Task Detail/Editor (`src/app/task/[id].tsx`) with subtask cascading and deletion.
+    - Event Creator (`src/app/event/create.tsx`) and Event Detail/Editor (`src/app/event/[id].tsx`) with recurrence and series deletion.
+    - Course Management Screen (`src/app/courses/index.tsx`) with code validation, course color picker, and soft deletion.
+    - Settings Hub (`src/app/settings/index.tsx`), Appearance Settings (`src/app/settings/appearance.tsx`), Focus Timer Settings (`src/app/settings/focus.tsx`), and Backup & Restore Screen (`src/app/settings/backup.tsx`).
+    - Modal Routes for Quick-Add natural language capture (`src/app/modal/quick-add.tsx`) and Rescheduling (`src/app/modal/reschedule.tsx`).
   - Full Test Pyramid:
-    - 26 test suites with 120 tests passing cleanly across unit, repository, component, and E2E critical flows.
-    - Comprehensive E2E tests validating task cascades, schedule collisions, focus drift recovery, disaster backup recovery, and sync conflict resolution.
+    - 27 test suites with 126 tests passing cleanly across unit, repository, component, and E2E critical flows.
+    - Comprehensive E2E tests validating task cascades, schedule collisions, focus drift recovery, disaster backup recovery, sub-route workflows, and sync conflict resolution.
 
 ## In Progress
 
-- None (All 5 stages completed).
+- None (All specification requirements and routes fully completed).
 
 ## Next Up
 
@@ -102,4 +108,5 @@ Update this file after every meaningful implementation change.
 
 ## Session Notes
 
-- Stage 5 is fully implemented and tested. All 120 tests across 26 test suites pass with zero warnings or errors, and `npx tsc --noEmit` compiles cleanly.
+- All 5 stages and all sub-routes specified in `plan.md` are 100% implemented and tested.
+- All 126 tests across 27 test suites pass with zero warnings or errors, and `npx tsc --noEmit` compiles cleanly with strict TypeScript.
