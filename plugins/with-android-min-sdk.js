@@ -4,10 +4,10 @@ const withAndroidMinSdk = (config) => {
   return withProjectBuildGradle(config, (modConfig) => {
     if (modConfig.modResults.language === "groovy") {
       const subprojectFix = `
-allprojects {
-    afterEvaluate { project ->
-        if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
-            project.android {
+subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.plugins.hasPlugin("com.android.library")) {
+            subproject.android {
                 defaultConfig {
                     minSdkVersion = 24
                 }
@@ -16,7 +16,7 @@ allprojects {
     }
 }
 `;
-      if (!modConfig.modResults.contents.includes("defaultConfig {\n                    minSdkVersion = 24")) {
+      if (!modConfig.modResults.contents.includes('subproject.plugins.hasPlugin("com.android.library")')) {
         modConfig.modResults.contents += "\n" + subprojectFix;
       }
     }
