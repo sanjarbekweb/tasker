@@ -1,0 +1,13 @@
+diff --git a/node_modules/@op-engineering/op-sqlite/android/build.gradle b/node_modules/@op-engineering/op-sqlite/android/build.gradle
+index 2d8bd81..0f424e4 100644
+--- a/node_modules/@op-engineering/op-sqlite/android/build.gradle
++++ b/node_modules/@op-engineering/op-sqlite/android/build.gradle
+@@ -116,7 +116,7 @@ android {
+   }
+ 
+   defaultConfig {
+-    minSdkVersion 23
++    minSdkVersion safeExtGet('minSdkVersion', 24)
+     targetSdkVersion safeExtGet('targetSdkVersion', 34)
+     versionCode 1
+     versionName "1.0"
