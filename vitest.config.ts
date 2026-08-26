@@ -10,6 +10,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "react-native": path.resolve(__dirname, "./tests/mocks/react-native.ts"),
+      "expo-notifications": path.resolve(__dirname, "./tests/mocks/expo-notifications.ts"),
     },
   },
 });

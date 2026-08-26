@@ -25,6 +25,7 @@ export class TaskRepository {
       timeBlockEnd,
       estimatedPomodoros,
       completedPomodoros,
+      completedAt: inputCompletedAt,
       orderIndex,
       courseId,
       id,
@@ -57,7 +58,7 @@ export class TaskRepository {
         timeBlockEnd: timeBlockEnd ?? null,
         estimatedPomodoros: estimatedPomodoros ?? 1,
         completedPomodoros: completedPomodoros ?? 0,
-        completedAt: isCompleted ? now : null,
+        completedAt: inputCompletedAt !== undefined ? inputCompletedAt : isCompleted ? now : null,
         orderIndex: orderIndex ?? 0,
         createdAt: now,
         updatedAt: now,
@@ -253,4 +254,69 @@ export class TaskRepository {
       throw new DatabaseError(`Database error soft-deleting task ${id}`, error);
     }
   }
+
+  /**
+   * Returns distinct ISO dates (YYYY-MM-DD) on which tasks were completed.
+   */
+  async listCompletedDates(): Promise<string[]> {
+    try {
+      const completedTasks = await this.db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.isCompleted, true), isNull(tasks.deletedAt)))
+        .orderBy(asc(tasks.completedAt));
+
+      const dateSet = new Set<string>();
+      for (const t of completedTasks) {
+        if (t.completedAt) {
+          const d = new Date(t.completedAt);
+          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          dateSet.add(iso);
+        } else if (t.dueDate) {
+          dateSet.add(t.dueDate);
+        }
+      }
+      return Array.from(dateSet);
+    } catch (error) {
+      throw new DatabaseError("Database error getting completed task dates", error);
+    }
+  }
+
+  /**
+   * Computes aggregate task completion summary directly from SQLite.
+   */
+  async getTaskStatsSummary(referenceIsoDate: string = new Date().toISOString().slice(0, 10)): Promise<{
+    totalTasks: number;
+    completedTasks: number;
+    pendingTasks: number;
+    overdueTasks: number;
+  }> {
+    try {
+      const active = await this.listActive();
+      let completedTasks = 0;
+      let pendingTasks = 0;
+      let overdueTasks = 0;
+
+      for (const t of active) {
+        if (t.isCompleted) {
+          completedTasks++;
+        } else {
+          pendingTasks++;
+          if (t.dueDate && t.dueDate < referenceIsoDate) {
+            overdueTasks++;
+          }
+        }
+      }
+
+      return {
+        totalTasks: active.length,
+        completedTasks,
+        pendingTasks,
+        overdueTasks,
+      };
+    } catch (error) {
+      throw new DatabaseError("Database error getting task stats summary", error);
+    }
+  }
 }
+

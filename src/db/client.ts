@@ -33,7 +33,11 @@ export function createNodeDatabase(config: DatabaseConfig = {}): {
   let tempFile: string | undefined;
 
   if (config.inMemory) {
-    tempFile = `temp_test_${crypto.randomUUID()}.db`;
+    const cacheDir = "node_modules/.cache/drizzle-tests";
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+    }
+    tempFile = `${cacheDir}/test_${crypto.randomUUID()}.db`;
     url = `file:${tempFile}`;
   } else {
     url = `file:${config.dbName ?? "numo.db"}`;

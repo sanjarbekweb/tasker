@@ -58,6 +58,7 @@ export const createTaskSchema = z.object({
   timeBlockEnd: z.string().nullable().optional(),
   estimatedPomodoros: z.number().int().min(1).optional().default(1),
   completedPomodoros: z.number().int().min(0).optional().default(0),
+  completedAt: z.number().int().positive().nullable().optional(),
   orderIndex: z.number().int().optional().default(0),
 });
 
