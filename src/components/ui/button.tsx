@@ -8,7 +8,7 @@ import {
   TextStyle,
   GestureResponderEvent,
 } from "react-native";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "outline";
@@ -43,12 +43,8 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const handlePress = (e: GestureResponderEvent) => {
     if (disabled || loading) return;
-    if (enableHaptic && typeof Haptics.impactAsync === "function") {
-      try {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      } catch {
-        // Ignore haptics failure in non-supported environments
-      }
+    if (enableHaptic) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     onPress?.(e);
   };

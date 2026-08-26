@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AppTab, useUIStore } from "../../stores/ui-store";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
 import { CheckSquare, Calendar, Target, User, Plus } from "lucide-react-native";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 
 export interface BottomTabBarProps {
   activeTab: AppTab;
@@ -24,24 +24,12 @@ export const BottomTabBar = memo(function BottomTabBar({
   onQuickAddPress,
 }: BottomTabBarProps) {
   const handleTabPress = (tab: AppTab) => {
-    try {
-      if (typeof Haptics.impactAsync === "function") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
-    } catch {
-      // ignore
-    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSelectTab(tab);
   };
 
   const handleFabPress = () => {
-    try {
-      if (typeof Haptics.impactAsync === "function") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
-    } catch {
-      // ignore
-    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onQuickAddPress?.();
   };
 

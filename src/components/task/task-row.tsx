@@ -7,7 +7,7 @@ import {
   Animated,
   ViewStyle,
 } from "react-native";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 import { Check, Clock, ListChecks } from "lucide-react-native";
 import { Task } from "../../db/schema/tasks";
 import { Course } from "../../db/schema/courses";
@@ -39,13 +39,7 @@ export const TaskRow = memo(function TaskRow({
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
   const handleToggle = () => {
-    try {
-      if (typeof Haptics.impactAsync === "function") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
-    } catch {
-      // Ignore haptic failure
-    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (!task.isCompleted) {
       // Task completion animation: scale -> spring -> fade

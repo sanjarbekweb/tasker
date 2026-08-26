@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { FocusMode } from "../../domain/focus";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 
 export interface ModeSelectorProps {
   mode: FocusMode;
@@ -23,13 +23,7 @@ export const ModeSelector = memo(function ModeSelector({
 }: ModeSelectorProps) {
   const handleSelect = (m: FocusMode) => {
     if (disabled) return;
-    try {
-      if (typeof Haptics.selectionAsync === "function") {
-        Haptics.selectionAsync();
-      }
-    } catch {
-      // ignore haptic error
-    }
+    Haptics.selectionAsync();
     onSelectMode(m);
   };
 

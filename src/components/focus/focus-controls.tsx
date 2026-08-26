@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Play, Pause, RotateCcw, SkipForward } from "lucide-react-native";
 import { FocusStatus } from "../../domain/focus";
 import { THEME_COLORS, BORDER_RADIUS, SPACING } from "../../constants/theme";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 
 export interface FocusControlsProps {
   status: FocusStatus;
@@ -22,14 +22,8 @@ export const FocusControls = memo(function FocusControls({
   onReset,
   onSkip,
 }: FocusControlsProps) {
-  const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
-    try {
-      if (typeof Haptics.impactAsync === "function") {
-        Haptics.impactAsync(style);
-      }
-    } catch {
-      // ignore
-    }
+  const triggerHaptic = (style = Haptics.ImpactFeedbackStyle.Medium) => {
+    Haptics.impactAsync(style as any);
   };
 
   const handleMainAction = () => {

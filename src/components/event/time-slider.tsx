@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
-import * as Haptics from "expo-haptics";
+import { Haptics } from "../../utils/haptics";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 
 export interface TimeSliderProps {
@@ -38,13 +38,7 @@ export const TimeSlider: React.FC<TimeSliderProps> = ({
   };
 
   const triggerHaptic = () => {
-    try {
-      if (typeof Haptics.selectionAsync === "function") {
-        Haptics.selectionAsync();
-      }
-    } catch {
-      // ignore haptic error
-    }
+    Haptics.selectionAsync();
   };
 
   return (
