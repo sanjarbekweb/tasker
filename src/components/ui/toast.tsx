@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useUIStore, ToastMessage } from "../../stores/ui-store";
-import { THEME_COLORS, TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { TYPOGRAPHY, BORDER_RADIUS, SPACING } from "../../constants/theme";
+import { useTheme } from "../../hooks/use-theme";
 import { X, CheckCircle, AlertCircle, Info } from "lucide-react-native";
 
 const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({
   toast,
   onDismiss,
 }) => {
+  const { colors, semantic } = useTheme();
+
   useEffect(() => {
-    const duration = toast.durationMs ?? 3000;
+    const duration = toast.durationMs ?? 1800;
     const timer = setTimeout(() => {
       onDismiss(toast.id);
     }, duration);
@@ -19,24 +22,32 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   const getIcon = () => {
     switch (toast.type) {
       case "success":
-        return <CheckCircle size={18} color={THEME_COLORS.semantic.stateSuccess} />;
+        return <CheckCircle size={18} color={semantic.stateSuccess} />;
       case "error":
-        return <AlertCircle size={18} color={THEME_COLORS.semantic.stateError} />;
+        return <AlertCircle size={18} color={semantic.stateError} />;
       case "info":
       default:
-        return <Info size={18} color={THEME_COLORS.light.textPrimary} />;
+        return <Info size={18} color={colors.textPrimary} />;
     }
   };
 
   return (
-    <View style={styles.toastCard}>
+    <View
+      style={[
+        styles.toastCard,
+        {
+          backgroundColor: colors.bgSurfaceCard,
+          borderColor: colors.borderDefault,
+        },
+      ]}
+    >
       <View style={styles.iconContainer}>{getIcon()}</View>
-      <Text style={styles.toastText}>{toast.message}</Text>
+      <Text style={[styles.toastText, { color: colors.textPrimary }]}>{toast.message}</Text>
       <TouchableOpacity
         onPress={() => onDismiss(toast.id)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <X size={16} color={THEME_COLORS.light.textMuted} />
+        <X size={16} color={colors.textMuted} />
       </TouchableOpacity>
     </View>
   );
@@ -67,30 +78,27 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   toastCard: {
-    backgroundColor: THEME_COLORS.light.bgSurfaceCard,
     borderRadius: BORDER_RADIUS.xl,
-    borderColor: THEME_COLORS.light.borderDefault,
     borderWidth: 1,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: SPACING.sm,
     width: "100%",
-    maxWidth: 420,
+    maxWidth: 400,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   iconContainer: {
-    marginRight: SPACING.md,
+    marginRight: SPACING.sm,
   },
   toastText: {
     ...TYPOGRAPHY.body,
-    fontSize: 14,
-    color: THEME_COLORS.light.textPrimary,
+    fontSize: 13,
+    fontWeight: "500",
     flex: 1,
   },
 });

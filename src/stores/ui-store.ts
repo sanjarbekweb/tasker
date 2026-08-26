@@ -69,10 +69,11 @@ export const useUIStore = create<UIState>((set) => ({
       activeModalEventId: null,
     }),
 
-  addToast: (message: string, type: "info" | "success" | "error" = "info", durationMs: number = 3000) => {
+  addToast: (message: string, type: "info" | "success" | "error" = "info", durationMs: number = 1800) => {
     const id = crypto.randomUUID();
     const newToast: ToastMessage = { id, message, type, durationMs };
-    set((state) => ({ toasts: [...state.toasts, newToast] }));
+    // Replace previous notifications so they never pile up or cover the screen
+    set({ toasts: [newToast] });
   },
 
   dismissToast: (id: string) =>
