@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@op-engineering/op-sqlite": "^8.0.3",
+    "@shopify/flash-list": "^2.3.2",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.39.3",
     "expo": "~52.0.30",

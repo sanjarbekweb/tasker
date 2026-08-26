@@ -155,3 +155,5 @@ export async function runMigrations(executor: SqliteRawExecutor): Promise<void> 
     throw new MigrationError("Failed running database migrations", error);
   }
 }
+
+export const runPendingMigrations = runMigrations;

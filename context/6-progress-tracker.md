@@ -2,13 +2,13 @@
 
 Update this file after every meaningful implementation change.
 
-## Current Phase
+### Current Phase
 
-- Stage 3 — Focus Engine + Scheduling [x] Completed
+- Stage 4 — UI, Rendering & Security [x] Completed
 
 ## Current Goal
 
-- Prepare for Stage 4: UI, Rendering & Security (FlashList v2 screens, monochrome design tokens, Reanimated gestures, SecureStore/SQLCipher encryption)
+- Prepare for Stage 5: Sync-readiness, Backup, Testing & Launch hardening
 
 ## Completed
 
@@ -34,18 +34,39 @@ Update this file after every meaningful implementation change.
   - `NotificationService` (`src/services/notifications/index.ts`) managing OS local alerts scheduled from exact target timestamps (`DateTriggerInput`), high-priority Android channel configuration, permission requests, and timer cancellation.
   - `FocusEngine` (`src/services/focus/focus-engine.ts`) coordinating SQLite persistence (`FocusStateRepository`), Zustand presentation (`useFocusStore`), OS notifications (`NotificationService`), and React Native `AppState` lifecycle transitions.
   - Crash-safe and background-resilient timer recovery calculating remaining time as `target_at - now()`, auto-transitioning and completing sessions when elapsed while backgrounded/suspended.
-  - Idempotent atomic session completion with status check-and-set (`running` -> `completed`) transaction and in-flight promise deduplication to prevent double-increment under background notification / foreground resume race conditions.
+  - Idempotent atomic session completion with status check-and-set (`running` -> `completed`) transaction and in-flight promise deduplication to prevent double-increment under background notification / foreground race conditions.
   - Timeline schedule builder (`buildDailySchedule`) combining calendar events and time-blocked tasks, interval collision detection, and actionable free gaps.
   - `draftToCreateTaskInput` integrating quick-add tokenizer directly into task creation with course tag mapping.
   - 18 test suites with 90 tests passing cleanly with zero warnings or errors and strict TypeScript compilation.
+- Stage 4: UI, Rendering & Security
+  - Design Tokens & Monochrome Shell (`src/constants/theme.ts` & `src/constants/index.ts`): Strict light & dark theme palettes, semantic color tokens (`--priority-high/med/low`, `--event-class/personal`, `--focus-accent`, `--gamify-streak`), ~10-12% course background tint calculations, and strict typography scale (`display`, `heading`, `body`, `caption`, `mono`, `timerLarge`).
+  - Security Architecture (`src/services/security/index.ts`): `SecureStore` key management isolating 256-bit database encryption keys from source code, .env, Zustand, and backup payloads.
+  - Structured Logging (`src/utils/logger.ts`): Leveled logger (`debug`, `info`, `warn`, `error`) disabling debug in production and automatically redacting sensitive tokens, passwords, and encryption keys.
+  - Error Boundaries (`src/components/ui/error-boundary.tsx`): Route and component level error boundaries with recovery and logging.
+  - UI Primitives (`src/components/ui/`): Pre-styled typography components, haptic-enabled `Button`, `Card`, `Badge` (Priority, CoursePill, Tag), zero-CLS `Skeleton`, slide-up `Modal`/BottomSheet, and `ToastContainer` connected to `useUIStore`.
+  - Feature Components & FlashList v2:
+    - Task components (`src/components/task/`): Memoized `TaskRow` with completion animation (scale -> spring -> checkmark -> strikethrough -> fade), `TimeGapRow`, `DateSelector` horizontal strip, `FilterStrip`, `QuickAddModal` with tokenizer live preview chips, and `RescheduleModal`.
+    - Event components (`src/components/event/`): `EventCard`, `TimelineSchedule` showing collisions and free gaps, `TimeSlider` with stepper haptics, and `EventModal`.
+    - Focus components (`src/components/focus/`): `Timer` visual anchor with monospace readout and focus accent ring, `ModeSelector`, `TaskContext` active task banner, and `FocusControls` (Start, Pause, Resume, Reset, Skip).
+    - Profile components (`src/components/profile/`): `Hero` with live streak flame, `MetricsGrid` sourcing live SQL stats, `SemesterStatus`, `DailyGoalCard`, and `SettingsList` with preference toggles & backup actions.
+    - Navigation (`src/components/navigation/`): `BottomTabBar` custom 4-tab bar with active state and quick-add trigger.
+  - Expo Router Routes (`src/app/`):
+    - `_layout.tsx`: Root layout initializing SQLite database & migrations on startup, wrapped in root `ErrorBoundary`, `SafeAreaProvider`, `GestureHandlerRootView`, and `ToastContainer`.
+    - `(tabs)/_layout.tsx`: Tab navigator hosting the 4 primary tabs with custom bottom bar.
+    - `(tabs)/index.tsx`: Tasks screen.
+    - `(tabs)/events.tsx`: Events screen.
+    - `(tabs)/focus.tsx`: Focus screen.
+    - `(tabs)/profile.tsx`: Profile screen.
+  - Backup & Restore Service (`src/services/backup/index.ts`): Schema-validated export and atomic transactional import excluding encryption keys.
+  - Expanded test suite to 23 test files with 107 tests passing with 0 errors and strict TypeScript compilation.
 
 ## In Progress
 
-- None (Stage 3 completed).
+- None (Stage 4 completed).
 
 ## Next Up
 
-- Stage 4: UI, Rendering & Security (FlashList v2 screens, monochrome design tokens, Reanimated gestures, SecureStore/SQLCipher encryption).
+- Stage 5: Sync-readiness, Backup, Testing & Launch hardening
 
 ## Open Questions
 
@@ -59,8 +80,10 @@ Update this file after every meaningful implementation change.
 - Multi-table mutations (task completion with subtask cascading, reordering) wrapped in strict Drizzle transactions.
 - State architecture strictly decouples SQLite (source of truth) from Zustand (transient/UI presentation state & optimistic acceleration).
 - Streak and analytics metrics computed on demand via SQL queries and pure domain functions, preventing stale cache drift.
+- UI styling follows a strict monochrome shell with semantic color accents and ~10-12% course background tint.
+- Database encryption key isolated exclusively in `expo-secure-store`.
+- FlashList v2 utilized for all scrollable collections with row-level memoization.
 
 ## Session Notes
 
-- Stage 3 is fully implemented and tested. All 90 tests across 18 test suites pass with zero warnings or errors. Ready for Stage 4.
-
+- Stage 4 is fully implemented and tested. All 107 tests across 23 test suites pass with zero warnings or errors, and `npx tsc --noEmit` compiles cleanly. Ready for Stage 5.

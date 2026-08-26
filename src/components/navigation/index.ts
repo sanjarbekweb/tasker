@@ -1,1 +1,1 @@
-export {};
+export * from "./bottom-tab-bar";

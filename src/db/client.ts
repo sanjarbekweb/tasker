@@ -23,6 +23,8 @@ export function getDatabaseInstance(): AppDatabase {
   return dbInstance;
 }
 
+export const getDatabase = getDatabaseInstance;
+
 export function createNodeDatabase(config: DatabaseConfig = {}): {
   db: AppDatabase;
   rawClient: Client;

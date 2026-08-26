@@ -206,3 +206,6 @@ export function calculateTaskCompletionRate(
   };
 }
 
+export const calculateLiveStreak = calculateCurrentStreak;
+export const calculateHistoricalLongestStreak = calculateLongestStreak;
+

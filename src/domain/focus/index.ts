@@ -154,4 +154,10 @@ export function calculateResumedTargetTimestamp(
   return resumeAt + remainingMs;
 }
 
+export function formatTimeRemaining(remainingSeconds: number): string {
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
 
