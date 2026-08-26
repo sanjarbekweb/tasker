@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@op-engineering/op-sqlite": "^8.0.3",
-    "@shopify/flash-list": "^2.3.2",
+    "@shopify/flash-list": "1.7.3",
     "@types/sql.js": "^1.4.11",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.39.3",
@@ -52,6 +52,16 @@
     "tsx": "^4.19.3",
     "typescript": "^5.3.3",
     "vitest": "^3.0.6"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "clsx",
+          "sql.js"
+        ]
+      }
+    }
   },
   "private": true
 }
