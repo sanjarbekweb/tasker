@@ -4,3 +4,5 @@ export * from "./mutation-queue";
 export * from "./backup";
 export * from "./security";
 export * from "./sync";
+export * from "./observability";
+export * from "./startup";

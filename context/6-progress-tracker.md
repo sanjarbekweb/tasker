@@ -2,13 +2,13 @@
 
 Update this file after every meaningful implementation change.
 
-### Current Phase
+## Current Phase
 
-- Stage 4 — UI, Rendering & Security [x] Completed
+- Stage 5 — Sync-readiness, Backup, Testing & Launch hardening [x] Completed
 
 ## Current Goal
 
-- Prepare for Stage 5: Sync-readiness, Backup, Testing & Launch hardening
+- All 5 stages of Numo specification completed with full test pyramid, zero TypeScript errors, and production launch hardening.
 
 ## Completed
 
@@ -58,15 +58,28 @@ Update this file after every meaningful implementation change.
     - `(tabs)/focus.tsx`: Focus screen.
     - `(tabs)/profile.tsx`: Profile screen.
   - Backup & Restore Service (`src/services/backup/index.ts`): Schema-validated export and atomic transactional import excluding encryption keys.
-  - Expanded test suite to 23 test files with 107 tests passing with 0 errors and strict TypeScript compilation.
+- Stage 5: Sync-readiness, Backup, Testing & Launch hardening
+  - Cloud Sync Architecture & API Boundary (`src/services/sync/`):
+    - Problem 1 Fix: Conflict resolution (`resolveConflict`) strictly relies on server-assigned ingestion sequence (`serverSeq`) and server timestamp (`serverUpdatedAt`), eliminating vulnerabilities to client clock drift and user time modifications.
+    - `SyncEngine`: Extracts local modifications, generates sync payloads, interacts with remote API boundary, and applies remote changes inside atomic transactions.
+    - Tombstone synchronization via soft-delete `deletedAt` metadata with deletion precedence rules.
+  - Observability & Telemetry (`src/services/observability/`):
+    - Performance monitor tracking `coldStartMs`, `warmStartMs`, `taskQueryMs`, `dbWriteMs`, `screenRenderMs`, `focusRecoveryMs`, and `crashRate`.
+    - Session tracking with crash-free session rate calculation and recursive redaction of sensitive credentials.
+  - Trimmed Startup Path & Launch Hardening (`src/services/startup/index.ts`, `src/app/_layout.tsx`):
+    - Critical launch sequence strictly constrained to SQLite init -> migration execution -> minimal preference read -> immediate Tasks paint.
+    - Deferred non-critical background jobs scheduled asynchronously.
+  - Full Test Pyramid:
+    - 26 test suites with 120 tests passing cleanly across unit, repository, component, and E2E critical flows.
+    - Comprehensive E2E tests validating task cascades, schedule collisions, focus drift recovery, disaster backup recovery, and sync conflict resolution.
 
 ## In Progress
 
-- None (Stage 4 completed).
+- None (All 5 stages completed).
 
 ## Next Up
 
-- Stage 5: Sync-readiness, Backup, Testing & Launch hardening
+- Ready for app build and deployment.
 
 ## Open Questions
 
@@ -83,7 +96,10 @@ Update this file after every meaningful implementation change.
 - UI styling follows a strict monochrome shell with semantic color accents and ~10-12% course background tint.
 - Database encryption key isolated exclusively in `expo-secure-store`.
 - FlashList v2 utilized for all scrollable collections with row-level memoization.
+- Conflict resolution uses server-assigned ingestion timestamps and sequence numbers (Problem 1 fix), never client device clocks.
+- Mobile app connects only via HTTPS API boundary, never directly to remote PostgreSQL.
+- Startup path optimized to render initial tasks view immediately before running non-critical background tasks.
 
 ## Session Notes
 
-- Stage 4 is fully implemented and tested. All 107 tests across 23 test suites pass with zero warnings or errors, and `npx tsc --noEmit` compiles cleanly. Ready for Stage 5.
+- Stage 5 is fully implemented and tested. All 120 tests across 26 test suites pass with zero warnings or errors, and `npx tsc --noEmit` compiles cleanly.

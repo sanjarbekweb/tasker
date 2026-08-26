@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "../components/ui/error-boundary";
 import { ToastContainer } from "../components/ui/toast";
 import { THEME_COLORS } from "../constants/theme";
-import { initializeDatabase } from "../db/client";
+import { StartupManager } from "../services/startup";
 import { logger } from "../utils/logger";
 
 export default function RootLayout() {
@@ -15,8 +15,7 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepareApp() {
       try {
-        logger.info("RootLayout", "Initializing database and running migrations");
-        await initializeDatabase();
+        await StartupManager.executeCriticalStartup();
         setIsReady(true);
       } catch (err) {
         logger.error("RootLayout", "Startup initialization failed", err);
