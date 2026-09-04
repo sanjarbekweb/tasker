@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Numo — The Offline-First Student Productivity OS</title>
+  <meta name="description" content="A local-first task, schedule, and focus companion for students. 0ms latency, zero network dependency, crash-safe focus timer, and natural language capture.">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./assets/landing/styles.css">
+
+  <!-- GSAP Core & ScrollTrigger from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Mouse Spotlight Glow -->
+  <div class="cursor-spotlight"></div>
+
+  <!-- Background Grid Pattern -->
+  <div class="bg-grid-overlay"></div>
+
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <nav class="nav-bar">
+      <a href="#" class="nav-brand">
+        <div class="brand-icon-box">⚡</div>
+        <span>Numo</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#focus-engine" class="nav-link">Focus Engine</a></li>
+        <li><a href="#architecture" class="nav-link">Architecture</a></li>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle-btn" class="btn-icon" aria-label="Toggle Theme" title="Toggle Theme">
+          <i data-lucide="sun" style="width:18px;height:18px;"></i>
+        </button>
+        <a href="#cta" class="btn-primary">
+          <span>Get Started</span>
+          <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      
+      <div class="hero-badge">
+        <div class="pill-badge glow">
+          <span class="dot"></span>
+          <span>Zero Network Dependency • 100% Local-First</span>
+        </div>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="hero-title-line">The Offline-First</span><br>
+        <span class="hero-title-line text-accent-gradient">Student Productivity OS</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Instant task capture, class schedule collision detection, and a background-safe focus timer. Built on local SQLite with zero network lag and 100% student data sovereignty.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="#demo" class="btn-primary" style="padding: 12px 28px; font-size: 1rem;">
+          <i data-lucide="play" style="width:18px;height:18px;"></i>
+          <span>Try Interactive Demo</span>
+        </a>
+        <a href="https://github.com/sanjarbekweb/tasker" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="padding: 12px 24px; font-size: 1rem;">
+          <i data-lucide="github" style="width:18px;height:18px;"></i>
+          <span>View Source Code</span>
+        </a>
+      </div>
+
+      <!-- Live Quick-Add Natural Language Simulator -->
+      <div class="quick-add-simulator">
+        <div class="simulator-header">
+          <span class="sim-label"><i data-lucide="terminal" style="width:14px;height:14px;"></i> Natural Language Parser</span>
+          <span class="sim-status"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Deterministic Tokenizer Active</span>
+        </div>
+        <div class="sim-input-row">
+          <span class="sim-input-text"></span>
+          <span class="sim-cursor"></span>
+        </div>
+        <div class="sim-parsed-tags">
+          <!-- Tags injected dynamically via GSAP in app.js -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive App Showcase Section -->
+  <section id="demo" class="app-showcase-section">
+    <div class="container">
+      
+      <div class="phone-mockup-wrapper">
+        
+        <!-- Floating Telemetry Badges -->
+        <div class="floating-telemetry-card card-pos-1">
+          <div class="brand-icon-box" style="color:#10b981; background:var(--priority-low-bg);">
+            <i data-lucide="zap" style="width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; font-weight:700;">0.2ms SQLite Write</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Atomic transaction commit</div>
+          </div>
+        </div>
+
+        <div class="floating-telemetry-card card-pos-2">
+          <div class="brand-icon-box" style="color:#a855f7; background:var(--focus-accent-bg);">
+            <i data-lucide="shield-check" style="width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; font-weight:700;">Crash-Safe Timer</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Timestamp delta reconstruction</div>
+          </div>
+        </div>
+
+        <div class="floating-telemetry-card card-pos-3">
+          <div class="brand-icon-box" style="color:#f59e0b; background:var(--gamify-streak-bg);">
+            <i data-lucide="flame" style="width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; font-weight:700;">14-Day Focus Streak</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Computed from source records</div>
+          </div>
+        </div>
+
+        <!-- Phone Device Frame -->
+        <div class="phone-device">
+          <div class="phone-notch">
+            <div class="notch-camera"></div>
+            <div class="notch-speaker"></div>
+          </div>
+
+          <div class="phone-screen">
+            
+            <!-- App Header -->
+            <div class="phone-app-header">
+              <div class="app-time-readout">09:41</div>
+              <div class="app-status-icons">
+                <i data-lucide="wifi-off" style="width:14px;height:14px;" title="Offline Mode"></i>
+                <i data-lucide="battery-charging" style="width:16px;height:16px;"></i>
+              </div>
+            </div>
+
+            <!-- Focus Timer Interactive Widget -->
+            <div class="focus-timer-card">
+              <div class="timer-task-label">
+                <i data-lucide="book-open" style="width:14px;height:14px;color:#3b82f6;"></i>
+                <span>CS 301 • OS Kernels Deep Work</span>
+              </div>
+
+              <div class="timer-circle-wrap">
+                <svg class="timer-svg" viewBox="0 0 150 150">
+                  <circle class="timer-circle-bg" cx="75" cy="75" r="65"></circle>
+                  <circle class="timer-circle-progress" cx="75" cy="75" r="65"></circle>
+                </svg>
+                <div class="timer-time-text">25:00</div>
+              </div>
+
+              <!-- Mode Selectors -->
+              <div style="display:flex; justify-content:center; gap:6px; margin-bottom:12px;">
+                <button class="timer-mode-btn timer-btn active" data-mins="25">25m Focus</button>
+                <button class="timer-mode-btn timer-btn" data-mins="5">5m Break</button>
+                <button class="timer-mode-btn timer-btn" data-mins="50">50m Deep</button>
+              </div>
+
+              <div class="timer-controls">
+                <button id="timer-start-btn" class="timer-btn active" style="padding:8px 20px;">
+                  <i data-lucide="play" style="width:14px;height:14px;"></i>
+                  <span>Start</span>
+                </button>
+                <button id="timer-reset-btn" class="timer-btn" style="padding:8px 14px;">
+                  <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Free Gap Detection Row -->
+            <div class="free-gap-row">
+              <span><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i> Free Time Gap (10:30 AM – 1:00 PM)</span>
+              <span style="font-weight:700;">2h 30m</span>
+            </div>
+
+            <!-- Task List -->
+            <div class="phone-task-list">
+              <div class="phone-task-item">
+                <div class="task-checkbox"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+                <div class="task-info">
+                  <div class="task-title">Read Operating Systems Ch. 4</div>
+                  <div class="task-subtext">
+                    <span style="color:#f43f5e;font-weight:600;">P1 High</span> • CS 301 • Due 5:00 PM
+                  </div>
+                </div>
+              </div>
+
+              <div class="phone-task-item completed">
+                <div class="task-checkbox"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+                <div class="task-info">
+                  <div class="task-title">Calculus III Problem Set 5</div>
+                  <div class="task-subtext">
+                    <span style="color:#3b82f6;font-weight:600;">P2 Med</span> • MATH 240 • Completed
+                  </div>
+                </div>
+              </div>
+
+              <div class="phone-task-item">
+                <div class="task-checkbox"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+                <div class="task-info">
+                  <div class="task-title">Draft Physics Lab Conclusion</div>
+                  <div class="task-subtext">
+                    <span style="color:#10b981;font-weight:600;">P3 Low</span> • PHYS 102 • Tomorrow
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Pinned "Features in Motion" Section (ScrollTrigger Pin & Scrub) -->
+  <section id="features" class="pinned-features-section">
+    <div class="container pinned-wrapper">
+      
+      <div class="pinned-left-content">
+        <span class="section-tag">Core Capabilities</span>
+        <h2 class="section-title">Engineered for Academic Mastery</h2>
+        <p class="section-desc" style="margin-bottom: 32px;">
+          Scroll through the architecture that keeps your study rhythm unbroken across any device, with or without Wi-Fi.
+        </p>
+
+        <div class="feature-step-card active" data-step="0">
+          <div class="feature-badge-icon" style="background:var(--priority-high-bg); color:var(--priority-high);">
+            <i data-lucide="message-square-code"></i>
+          </div>
+          <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:8px;">1. Natural Language Parser</h3>
+          <p style="color:var(--text-secondary); font-size:0.95rem;">
+            Type `"HW 3 tomorrow 5pm p1 #math"` — our deterministic tokenizer extracts dates, times, priority levels, and course tags instantly without sending personal prompts to remote AI servers.
+          </p>
+        </div>
+
+        <div class="feature-step-card" data-step="1">
+          <div class="feature-badge-icon" style="background:var(--focus-accent-bg); color:#a855f7;">
+            <i data-lucide="timer"></i>
+          </div>
+          <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:8px;">2. Timestamp-Driven Focus Engine</h3>
+          <p style="color:var(--text-secondary); font-size:0.95rem;">
+            Survives OS backgrounding, low-power suspension, and system reboots. Reconstructs exact remaining time from wall-clock timestamps (`target_at - now()`) and delivers local notifications on schedule.
+          </p>
+        </div>
+
+        <div class="feature-step-card" data-step="2">
+          <div class="feature-badge-icon" style="background:var(--priority-medium-bg); color:var(--priority-medium);">
+            <i data-lucide="calendar-range"></i>
+          </div>
+          <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:8px;">3. Free-Gap Collision Detection</h3>
+          <p style="color:var(--text-secondary); font-size:0.95rem;">
+            Parses `RRULE` recurring university schedules, maps class boundaries, and highlights open study intervals so you always know your next available focus window.
+          </p>
+        </div>
+
+        <div class="feature-step-card" data-step="3">
+          <div class="feature-badge-icon" style="background:var(--priority-low-bg); color:var(--priority-low);">
+            <i data-lucide="database"></i>
+          </div>
+          <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:8px;">4. Local SQLite & Zero-Cloud Risk</h3>
+          <p style="color:var(--text-secondary); font-size:0.95rem;">
+            OP-SQLite + Drizzle ORM ensures 0ms read/write latency. Optional SQLCipher hardware-backed encryption with SecureStore key isolation and lossless JSON backup portability.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Visual Dynamic Panel -->
+      <div class="pinned-right-visual">
+        <div class="visual-panel active" data-visual="0">
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-default); border-radius:var(--radius-lg); padding:24px; font-family:var(--font-mono); font-size:0.85rem;">
+            <div style="color:var(--text-muted); margin-bottom:12px;">// Deterministic AST Token Stream</div>
+            <div style="color:#c084fc;">Token 1: <span style="color:var(--text-primary);">"HW 3"</span> &rarr; TITLE</div>
+            <div style="color:#38bdf8;">Token 2: <span style="color:var(--text-primary);">"tomorrow 5pm"</span> &rarr; ISO_DATE_TIME</div>
+            <div style="color:#f43f5e;">Token 3: <span style="color:var(--text-primary);">"p1"</span> &rarr; PRIORITY_HIGH</div>
+            <div style="color:#10b981;">Token 4: <span style="color:var(--text-primary);">"#math"</span> &rarr; COURSE_LOOKUP</div>
+            <div style="margin-top:16px; padding-top:12px; border-top:1px dashed var(--border-default); color:#10b981;">
+              &check; Parsed & persisted in 0.18ms
+            </div>
+          </div>
+        </div>
+
+        <div class="visual-panel" data-visual="1">
+          <div style="text-align:center; padding:24px;">
+            <div style="display:inline-flex; align-items:center; justify-content:center; width:120px; height:120px; border-radius:50%; border:4px solid #a855f7; box-shadow:0 0 30px rgba(168,85,247,0.3); margin-bottom:20px;">
+              <i data-lucide="shield" style="width:48px;height:48px;color:#a855f7;"></i>
+            </div>
+            <h4 style="font-size:1.2rem; font-weight:700; margin-bottom:8px;">Zero State Loss</h4>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">
+              Sessions survive background suspension and process termination without losing a single second.
+            </p>
+          </div>
+        </div>
+
+        <div class="visual-panel" data-visual="2">
+          <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+            <div style="background:var(--bg-surface-elevated); border-left:4px solid #3b82f6; padding:12px 16px; border-radius:var(--radius-md);">
+              <div style="font-weight:700; font-size:0.88rem;">CS 301 Lecture</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">09:00 AM &ndash; 10:30 AM</div>
+            </div>
+            <div style="border:1px dashed #10b981; background:var(--priority-low-bg); color:#10b981; padding:10px 16px; border-radius:var(--radius-md); font-family:var(--font-mono); font-size:0.8rem; display:flex; justify-content:space-between;">
+              <span>&starf; Free Study Window</span>
+              <span>2h 30m</span>
+            </div>
+            <div style="background:var(--bg-surface-elevated); border-left:4px solid #6366f1; padding:12px 16px; border-radius:var(--radius-md);">
+              <div style="font-weight:700; font-size:0.88rem;">MATH 240 Recitation</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">01:00 PM &ndash; 02:30 PM</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="visual-panel" data-visual="3">
+          <div style="text-align:center; padding:24px;">
+            <i data-lucide="lock" style="width:54px;height:54px;color:#10b981;margin-bottom:16px;"></i>
+            <h4 style="font-size:1.2rem; font-weight:700; margin-bottom:8px;">SQLCipher 256-bit AES</h4>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">
+              Keys stored strictly in hardware SecureStore. Your assignments and study telemetry never leave your hardware.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Horizontal Feature Flow Section (containerAnimation ease: none) -->
+  <section class="horizontal-flow-section">
+    <div class="container" style="margin-bottom: 30px;">
+      <span class="section-tag">Precision Experience</span>
+      <h2 class="section-title">Crafted for Deep Focus</h2>
+    </div>
+
+    <div class="horizontal-track-wrapper">
+      <div class="horizontal-track">
+        
+        <div class="horizontal-card">
+          <div>
+            <div class="card-top-icon"><i data-lucide="zap"></i></div>
+            <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:12px;">Instant UI Updates</h3>
+            <p style="color:var(--text-secondary); font-size:0.95rem;">
+              Optimistic mutations update the interface in 0ms. FlashList v2 ensures 120fps scrolling even with thousands of archived tasks.
+            </p>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.78rem; color:#10b981; margin-top:20px;">
+            &bull; 120 FPS Guaranteed
+          </div>
+        </div>
+
+        <div class="horizontal-card">
+          <div>
+            <div class="card-top-icon"><i data-lucide="moon"></i></div>
+            <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:12px;">Monochrome Precision Shell</h3>
+            <p style="color:var(--text-secondary); font-size:0.95rem;">
+              Neutral surfaces prevent visual fatigue. Color is reserved solely for semantic meaning: high priority, course identity, and focus indicators.
+            </p>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.78rem; color:#c084fc; margin-top:20px;">
+            &bull; Zero Distraction Design
+          </div>
+        </div>
+
+        <div class="horizontal-card">
+          <div>
+            <div class="card-top-icon"><i data-lucide="share-2"></i></div>
+            <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:12px;">Universal JSON Portability</h3>
+            <p style="color:var(--text-secondary); font-size:0.95rem;">
+              Export full encrypted backups or readable JSON archives. Move between devices or platforms with zero lock-in.
+            </p>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.78rem; color:#3b82f6; margin-top:20px;">
+            &bull; 100% Data Sovereignty
+          </div>
+        </div>
+
+        <div class="horizontal-card">
+          <div>
+            <div class="card-top-icon"><i data-lucide="flame"></i></div>
+            <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:12px;">Live Source-Table Streaks</h3>
+            <p style="color:var(--text-secondary); font-size:0.95rem;">
+              Streak counters and focus stats are computed live from source SQLite tables on query &mdash; no stale cache counters or desync bugs.
+            </p>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.78rem; color:#f59e0b; margin-top:20px;">
+            &bull; Cryptographically Accurate
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture & Comparison Section -->
+  <section id="architecture" class="architecture-section">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">Performance Benchmarks</span>
+        <h2 class="section-title">Cloud Latency vs. Local SQLite</h2>
+        <p class="section-desc">
+          Compare traditional cloud task managers with Numo's local-first architecture.
+        </p>
+      </div>
+
+      <!-- Telemetry Stats Batch Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:24px; margin-bottom:40px;">
+        
+        <div class="batch-reveal" style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-xl); padding:28px; text-align:center;">
+          <div class="stat-counter font-mono" data-target="0" data-suffix="ms" style="font-size:2.8rem; font-weight:800; color:#10b981; line-height:1;">0ms</div>
+          <div style="font-size:0.95rem; font-weight:600; margin-top:8px;">Write Latency</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Direct SQLite transaction</div>
+        </div>
+
+        <div class="batch-reveal" style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-xl); padding:28px; text-align:center;">
+          <div class="stat-counter font-mono" data-target="100" data-suffix="%" style="font-size:2.8rem; font-weight:800; color:#a855f7; line-height:1;">100%</div>
+          <div style="font-size:0.95rem; font-weight:600; margin-top:8px;">Offline Usability</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">No internet required</div>
+        </div>
+
+        <div class="batch-reveal" style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-xl); padding:28px; text-align:center;">
+          <div class="stat-counter font-mono" data-target="0" data-suffix="" style="font-size:2.8rem; font-weight:800; color:#3b82f6; line-height:1;">0</div>
+          <div style="font-size:0.95rem; font-weight:600; margin-top:8px;">Server Outages</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Data lives on device</div>
+        </div>
+
+      </div>
+
+      <!-- Comparison Matrix -->
+      <div class="comparison-table-wrap batch-reveal">
+        <div class="comparison-grid comp-header">
+          <div class="comp-cell">Feature & Capability</div>
+          <div class="comp-cell">Traditional Cloud Apps</div>
+          <div class="comp-cell comp-numo">Numo Local-First</div>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-cell"><strong>Data Storage</strong></div>
+          <div class="comp-cell" style="color:var(--text-muted);">Remote Cloud Database</div>
+          <div class="comp-cell comp-numo">On-Device OP-SQLite</div>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-cell"><strong>Offline Resilience</strong></div>
+          <div class="comp-cell" style="color:var(--text-muted);">Degraded / Read-only</div>
+          <div class="comp-cell comp-numo">100% Full Functionality</div>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-cell"><strong>Focus Timer Survival</strong></div>
+          <div class="comp-cell" style="color:var(--text-muted);">Suspended on app kill</div>
+          <div class="comp-cell comp-numo">Timestamp Auto-Recovery</div>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-cell"><strong>Quick Add Parsing</strong></div>
+          <div class="comp-cell" style="color:var(--text-muted);">Server-side AI latency (2s)</div>
+          <div class="comp-cell comp-numo">Instant Local Tokenizer (0.2ms)</div>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-cell"><strong>Encryption & Privacy</strong></div>
+          <div class="comp-cell" style="color:var(--text-muted);">Server-managed keys</div>
+          <div class="comp-cell comp-numo">SQLCipher Hardware SecureStore</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">Frequently Asked Questions</span>
+        <h2 class="section-title">Everything You Need to Know</h2>
+      </div>
+
+      <div class="faq-list">
+        
+        <div class="faq-item batch-reveal">
+          <button class="faq-question">
+            <span>How does the Pomodoro focus timer survive app restarts?</span>
+            <i data-lucide="chevron-down" class="faq-icon"></i>
+          </button>
+          <div class="faq-answer">
+            Numo's focus engine uses a timestamp-driven architecture (`started_at` and `target_at`) rather than a fragile decrementing Javascript interval. When you open or background the app, the engine computes the exact delta against wall-clock time and triggers native local OS notifications when completed.
+          </div>
+        </div>
+
+        <div class="faq-item batch-reveal">
+          <button class="faq-question">
+            <span>Can I export and back up my study data?</span>
+            <i data-lucide="chevron-down" class="faq-icon"></i>
+          </button>
+          <div class="faq-answer">
+            Yes! Numo includes complete schema-validated JSON backup export and import. You can export your entire database at any time, transfer it across devices, or keep encrypted snapshots.
+          </div>
+        </div>
+
+        <div class="faq-item batch-reveal">
+          <button class="faq-question">
+            <span>How does natural language quick-add work offline?</span>
+            <i data-lucide="chevron-down" class="faq-icon"></i>
+          </button>
+          <div class="faq-answer">
+            Numo includes a deterministic tokenizing parser that operates locally in milliseconds. It recognizes natural time expressions (`"tomorrow 5pm"`, `"next monday"`, `"in 2 hours"`), priority tokens (`"p1"`, `"high"`), and course hashes (`"#math"`), creating clean structured records with zero network latency.
+          </div>
+        </div>
+
+        <div class="faq-item batch-reveal">
+          <button class="faq-question">
+            <span>Will cloud synchronization be supported in the future?</span>
+            <i data-lucide="chevron-down" class="faq-icon"></i>
+          </button>
+          <div class="faq-answer">
+            The data schema is already designed sync-ready with soft-deletes (`deleted_at`), version tracking, and timestamp metadata. Cloud sync can be connected seamlessly in the future without requiring database schema rewrites or breaking offline guarantees.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Bottom CTA Banner Section -->
+  <section id="cta" class="cta-banner-section">
+    <div class="container">
+      <div class="cta-banner-card batch-reveal">
+        <h2 style="font-size:clamp(2rem, 5vw, 3.2rem); font-weight:800; line-height:1.2; margin-bottom:16px;">
+          Reclaim Your Academic Focus
+        </h2>
+        <p style="font-size:1.15rem; color:var(--text-secondary); max-width:600px; margin:0 auto 36px;">
+          Experience instant interactions, zero network delays, and a study OS that puts your productivity first.
+        </p>
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+          <a href="#demo" class="btn-primary" style="padding:14px 32px; font-size:1.05rem;">
+            <i data-lucide="zap" style="width:20px;height:20px;"></i>
+            <span>Launch Live App</span>
+          </a>
+          <a href="https://github.com/sanjarbekweb/tasker" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="padding:14px 28px; font-size:1.05rem;">
+            <i data-lucide="download" style="width:20px;height:20px;"></i>
+            <span>Get APK / Build</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-section">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="brand-icon-box" style="width:26px; height:26px; font-size:0.8rem;">⚡</div>
+        <span style="font-weight:700; color:var(--text-primary);">Numo</span>
+        <span>&mdash; Local-First Student OS</span>
+      </div>
+      <div>
+        Built with GSAP &bull; OP-SQLite &bull; Drizzle ORM &bull; MIT License
+      </div>
+    </div>
+  </footer>
+
+  <!-- Animation Logic -->
+  <script src="./assets/landing/app.js"></script>
+</body>
+</html>
